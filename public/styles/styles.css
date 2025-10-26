@@ -1,0 +1,221 @@
+/* ===== Estilos generales ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background: linear-gradient(180deg, #eafaf1 0%, #f6fff9 100%);
+    color: #2e3d34;
+    line-height: 1.6;
+}
+
+/* ===== Header ===== */
+.header {
+    background: linear-gradient(135deg, #b2e0b2, #9cd4c2);
+    color: #1d3a2e;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+    font-size: 1.8rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #1d3a2e;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #0c6b3f;
+}
+
+.btn-login {
+    background: #86cfa3;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(134, 207, 163, 0.5);
+}
+
+.btn-login:hover {
+    background: #6bbd8c;
+    transform: translateY(-2px);
+}
+
+/* ===== Hero Section ===== */
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(rgba(178, 224, 178, 0.1), rgba(156, 212, 194, 0.1));
+}
+
+.hero h2 {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+    color: #2f4f3e;
+}
+
+.hero p {
+    max-width: 700px;
+    margin: 0 auto 30px;
+    font-size: 1.1rem;
+    color: #3a4c42;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #2f4f3e;
+    font-size: 1.8rem;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: #9adbb5;
+    margin: 10px auto 0;
+}
+
+/* ===== User Cards ===== */
+.user-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.user-card {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-card h3 {
+    color: #2f4f3e;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    border-left: 4px solid #9adbb5;
+    padding-left: 10px;
+}
+
+.user-card ul {
+    list-style-type: none;
+}
+
+.user-card li {
+    margin-bottom: 10px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.user-card li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #86cfa3;
+    font-weight: bold;
+}
+
+/* ===== About Section ===== */
+.about-section {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.about-item h3 {
+    color: #2f4f3e;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.about-item p,
+.about-item ul {
+    color: #3a4c42;
+}
+
+.about-item ul {
+    list-style-type: none;
+}
+
+.about-item li {
+    margin-bottom: 8px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.about-item li::before {
+    content: "🌱";
+    position: absolute;
+    left: 0;
+}
+
+/* ===== Footer ===== */
+.footer {
+    text-align: center;
+    padding: 20px;
+    background: #f4fbf6;
+    color: #4b6456;
+    border-top: 1px solid #e2f0e7;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+}

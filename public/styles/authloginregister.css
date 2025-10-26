@@ -1,0 +1,154 @@
+/*
+ * Hoja de Estilos Unificada para Login y Registro
+ * Ubicación: public/styles/style_auth.css
+ * Tema: BioTrack (verde/natural)
+ */
+
+/* ===== 1. Estilos Globales y Contenedor Principal (Body) ===== */
+* {
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    /* Fondo degradado BioTrack para ambas páginas */
+    background: linear-gradient(135deg, #eafaf1 0%, #f6fff9 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.auth-card {
+    /* Estilo de la caja central para ambas páginas */
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    /* Máximo ancho estándar para formularios de autenticación */
+    max-width: 420px;
+}
+
+/* ===== 2. Encabezado y Grupos de Entrada ===== */
+.auth-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.auth-header h2 {
+    font-size: 1.8rem;
+    color: #2f4f3e;
+    /* Color oscuro de BioTrack */
+    margin-top: 10px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+/* Estilo para inputs (Correo, Contraseña, Nombre) */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #c8e6c9;
+    /* Borde verde claro */
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #6bbd8c;
+    /* Borde verde fuerte al enfocar */
+    box-shadow: 0 0 0 3px rgba(134, 207, 163, 0.4);
+}
+
+/* ===== 3. Botones y Enlaces (Estilo BioTrack) ===== */
+.btn-primary {
+    background: #86cfa3;
+    /* Color principal de BioTrack */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(134, 207, 163, 0.3);
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background: #6bbd8c;
+    transform: translateY(-1px);
+}
+
+.auth-link {
+    color: #0c6b3f;
+    /* Enlaces en color verde de BioTrack */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+/* ===== 4. Estilos de Validación y Checklist (Específico de Registro) ===== */
+.password-checklist {
+    text-align: left;
+    margin: 10px 0 20px 0;
+    padding: 10px;
+    background: #f4fff9;
+    /* Fondo muy claro para el bloque */
+    border-radius: 8px;
+}
+
+.password-checklist ul {
+    list-style: none;
+    padding-left: 0;
+    font-size: 0.9rem;
+}
+
+.password-checklist li {
+    margin: 5px 0;
+    color: #4b6456;
+}
+
+/* Estilos de mensaje de error/estado */
+.text-danger {
+    color: #d9534f;
+    margin-top: 10px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Boton de Volver a Inicio */
+.btn-secondary {
+    background: #f4fbf6;
+    /* Fondo muy claro */
+    color: #4b6456;
+    /* Texto verde oscuro */
+    padding: 10px 20px;
+    border: 1px solid #c8e6c9;
+    border-radius: 25px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-block;
+    width: 100%;
+    margin-top: 15px;
+    /* Separación del enlace de registro/login */
+    text-align: center;
+    text-decoration: none;
+    /* Quitamos el subrayado */
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #eafaf1;
+}

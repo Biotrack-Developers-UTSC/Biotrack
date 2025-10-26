@@ -1,52 +1,92 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="es">
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioTrack - Registro</title>
+    <link rel="stylesheet" href="{{ asset('styles/authloginregister.css') }}">
+</head>
+
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="text-3xl">📝</span>
+            <h2>Registro de Usuario</h2>
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <form method="POST" action="{{ route('register') }}" id="registerForm">
+            @csrf
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            <div class="input-group">
+                <label for="nombre" style="display: block; font-weight: 500; margin-bottom: 5px;">Nombre</label>
+                <input id="nombre" type="text" name="name" value="{{ old('name') }}" required autofocus
+                    autocomplete="name" placeholder="Tu Nombre Completo" />
+                @error('name') <p class="text-danger">{{ $message }}</p> @enderror
+            </div>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+            <div class="input-group">
+                <label for="correo" style="display: block; font-weight: 500; margin-bottom: 5px;">Correo
+                    Electrónico</label>
+                <input id="correo" type="email" name="email" value="{{ old('email') }}" required autocomplete="username"
+                    placeholder="tu.correo@biotrack.org" />
+                @error('email') <p class="text-danger">{{ $message }}</p> @enderror
+            </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            <div class="input-group">
+                <label for="contraseña" style="display: block; font-weight: 500; margin-bottom: 5px;">Contraseña</label>
+                <input id="contraseña" type="password" name="password" required autocomplete="new-password"
+                    placeholder="••••••••" />
+                @error('password') <p class="text-danger">{{ $message }}</p> @enderror
+            </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <div class="input-group">
+                <label for="password_confirmation"
+                    style="display: block; font-weight: 500; margin-bottom: 5px;">Confirmar Contraseña</label>
+                <input id="password_confirmation" type="password" name="password_confirmation" required
+                    autocomplete="new-password" placeholder="••••••••" />
+                @error('password_confirmation') <p class="text-danger">{{ $message }}</p> @enderror
+            </div>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+            <div class="password-checklist">
+                <p style="font-weight: 600; margin-bottom: 5px;">Tu contraseña debe contener:</p>
+                <ul>
+                    <li id="checkLength">❌ Al menos 8 caracteres</li>
+                    <li id="checkUpper">❌ Una letra mayúscula</li>
+                    <li id="checkNumber">❌ Un número</li>
+                    <li id="checkSpecial">❌ Un carácter especial (!@#$%^&*)</li>
+                </ul>
+            </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+            <button type="submit" class="btn-primary">
+                Registrarse
+            </button>
+        </form>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+        <p style="text-align: center; margin-top: 25px; font-size: 0.9rem; color: #4b6456;">
+            <a class="auth-link" href="{{ route('login') }}">¿Ya tienes cuenta? Inicia sesión aquí</a>
+        </p>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+        <a class="btn-secondary" href="{{ route('home') }}">
+            ← Volver al Inicio
+        </a>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById("contraseña");
+        const checkLength = document.getElementById("checkLength");
+        const checkUpper = document.getElementById("checkUpper");
+        const checkNumber = document.getElementById("checkNumber");
+        const checkSpecial = document.getElementById("checkSpecial");
+
+        passwordInput.addEventListener("input", () => {
+            const pwd = passwordInput.value;
+            checkLength.textContent = pwd.length >= 8 ? "✅ Al menos 8 caracteres" : "❌ Al menos 8 caracteres";
+            checkUpper.textContent = /[A-Z]/.test(pwd) ? "✅ Una letra mayúscula" : "❌ Una letra mayúscula";
+            checkNumber.textContent = /[0-9]/.test(pwd) ? "✅ Un número" : "❌ Un número";
+            checkSpecial.textContent = /[!@#$%^&*]/.test(pwd) ? "✅ Un carácter especial (!@#$%^&*)" : "❌ Un carácter especial (!@#$%^&*)";
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,52 @@
+/*
+ * Archivo: public/dashboard.css
+ * Contiene estilos específicos del dashboard que no están en Tailwind.
+ */
+
+/* Estilos básicos */
+body {
+    box-sizing: border-box;
+}
+
+/* Animación para el indicador de sensor activo */
+.sensor-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Animación para la entrada de nuevos datos en el feed */
+.data-stream {
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Efecto hover para los marcadores del mapa */
+.map-marker {
+    transition: all 0.3s ease;
+}
+
+.map-marker:hover {
+    transform: scale(1.2);
+}

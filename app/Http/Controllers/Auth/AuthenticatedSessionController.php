@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\LoginRequest; // Usa este objeto para autenticar
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,11 +24,25 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->authenticate(); // Este método autentica, valida y maneja errores.
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // 2. RECUPERAMOS el usuario autenticado para la lógica de roles.
+        $user = Auth::user();
+
+        // 3. Lógica de Redirección Inteligente BASADA EN EL ROL
+        if ($user) {
+            if ($user->role === 'admin') {
+                return redirect()->intended(route('admin.dashboard'));
+            }
+            if ($user->role === 'guardaparque') {
+                return redirect()->intended(route('guardaparque.dashboard'));
+            }
+        }
+
+        // Redirección por defecto para usuarios sin rol específico (e.g., 'user')
+        return redirect()->intended(route('dashboard'));
     }
 
     /**
