@@ -15,7 +15,8 @@
             <h2>Registro de Usuario</h2>
         </div>
 
-        <form method="POST" action="{{ route('register') }}" id="registerForm">
+        {{-- ¡CORRECCIÓN CLAVE! Usar la ruta POST para el registro --}}
+        <form method="POST" action="{{ route('register.post') }}" id="registerForm">
             @csrf
 
             <div class="input-group">
@@ -67,12 +68,13 @@
             <a class="auth-link" href="{{ route('login') }}">¿Ya tienes cuenta? Inicia sesión aquí</a>
         </p>
 
-        <a class="btn-secondary" href="{{ route('home') }}">
+        <a class="btn-secondary" href="{{ route('index') }}">
             ← Volver al Inicio
         </a>
     </div>
 
     <script>
+        // Lógica de validación de contraseña en tiempo real
         const passwordInput = document.getElementById("contraseña");
         const checkLength = document.getElementById("checkLength");
         const checkUpper = document.getElementById("checkUpper");
@@ -81,10 +83,18 @@
 
         passwordInput.addEventListener("input", () => {
             const pwd = passwordInput.value;
-            checkLength.textContent = pwd.length >= 8 ? "✅ Al menos 8 caracteres" : "❌ Al menos 8 caracteres";
-            checkUpper.textContent = /[A-Z]/.test(pwd) ? "✅ Una letra mayúscula" : "❌ Una letra mayúscula";
-            checkNumber.textContent = /[0-9]/.test(pwd) ? "✅ Un número" : "❌ Un número";
-            checkSpecial.textContent = /[!@#$%^&*]/.test(pwd) ? "✅ Un carácter especial (!@#$%^&*)" : "❌ Un carácter especial (!@#$%^&*)";
+
+            // Función para actualizar el texto y el emoji
+            const updateCheck = (element, condition, text) => {
+                const emoji = condition ? "✅" : "❌";
+                element.textContent = `${emoji} ${text}`;
+            };
+
+            // Comprobaciones
+            updateCheck(checkLength, pwd.length >= 8, "Al menos 8 caracteres");
+            updateCheck(checkUpper, /[A-Z]/.test(pwd), "Una letra mayúscula");
+            updateCheck(checkNumber, /[0-9]/.test(pwd), "Un número");
+            updateCheck(checkSpecial, /[!@#$%^&*]/.test(pwd), "Un carácter especial (!@#$%^&*)");
         });
     </script>
 </body>

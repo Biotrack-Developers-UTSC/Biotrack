@@ -19,7 +19,8 @@
             <p class="text-danger">{{ session('status') }}</p>
         @endif
 
-        <form method="POST" action="{{ route('login') }}">
+        {{-- La acción del formulario es CORRECTA: login.post --}}
+        <form method="POST" action="{{ route('login.post') }}">
             @csrf
 
             <div class="input-group">
@@ -60,7 +61,8 @@
             <a class="auth-link" href="{{ route('register') }}">Regístrate aquí</a>
         </p>
 
-        <a class="btn-secondary" href="{{ route('home') }}">
+        {{-- CORRECCIÓN: Cambiamos route('home') por route('index') --}}
+        <a class="btn-secondary" href="{{ route('index') }}">
             ← Volver al Inicio
         </a>
 

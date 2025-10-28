@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest; // Usa este objeto para autenticar
+use App\Providers\AppServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Muestra la vista de login (GET /login).
      */
     public function create(): View
     {
@@ -20,33 +20,30 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Procesa la solicitud de autenticación (POST /login).
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $request->authenticate(); // Este método autentica, valida y maneja errores.
+        $credentials = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
-        $request->session()->regenerate();
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
 
-        // 2. RECUPERAMOS el usuario autenticado para la lógica de roles.
-        $user = Auth::user();
-
-        // 3. Lógica de Redirección Inteligente BASADA EN EL ROL
-        if ($user) {
-            if ($user->role === 'admin') {
-                return redirect()->intended(route('admin.dashboard'));
-            }
-            if ($user->role === 'guardaparque') {
-                return redirect()->intended(route('guardaparque.dashboard'));
-            }
+            // Redirigir a la ubicación HOME (/welcome)
+            return redirect()->intended(AppServiceProvider::HOME);
         }
 
-        // Redirección por defecto para usuarios sin rol específico (e.g., 'user')
-        return redirect()->intended(route('dashboard'));
+        // Si falla, redirigir de vuelta con error
+        return back()->withErrors([
+            'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
+        ])->onlyInput('email');
     }
 
     /**
-     * Destroy an authenticated session.
+     * Cierra la sesión (POST /logout).
      */
     public function destroy(Request $request): RedirectResponse
     {
