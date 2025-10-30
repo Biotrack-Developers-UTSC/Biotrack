@@ -9,11 +9,12 @@ class GuardaparquesController extends Controller
 {
     /**
      * Muestra el dashboard principal para el Guardaparque.
+     * Sirve la vista guardaparques.dashboard.blade.php
      */
     public function dashboard(): View
     {
         $user = Auth::user();
-        // Aquí se pueden cargar datos como conteo de alertas activas o registros de la semana.
+        // Nota: Si necesitas datos para las pestañas de @include, los pasarías aquí.
 
         return view('guardaparques.dashboard', compact('user'));
     }

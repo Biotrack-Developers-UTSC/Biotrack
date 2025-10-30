@@ -35,14 +35,22 @@
       {{-- SECCIÓN 2: GESTIÓN DE ANIMALES (CRUD) --}}
       <div id="gestion-animales" class="section-content hidden">
         <h2 class="text-3xl font-bold text-green-600 mb-6">CRUD de Especies</h2>
-        {{-- Incluye la tabla con botones de Editar/Eliminar --}}
-        @include('guardaparque.animales.crud_index')
+        {{-- ENLACE AL CONTROLADOR DEL CRUD --}}
+        <a href="{{ route('animales.index') }}"
+          class="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors shadow-md inline-block">
+          <i class="fas fa-table mr-2"></i> Ver Tabla de Especies
+        </a>
+        @include('guardaparques.animales.crud_index')
       </div>
 
       {{-- SECCIÓN 3: GESTIÓN DE ALERTAS IoT --}}
       <div id="gestion-alertas" class="section-content hidden">
         <h2 class="text-3xl font-bold text-red-600 mb-6">Gestión de Alertas (Sensores Arduino/IoT)</h2>
-        {{-- Aquí va el contenido del CRUD de Alertas (AlertaController) --}}
+        {{-- ENLACE AL CONTROLADOR DE ALERTAS --}}
+        <a href="{{ route('alertas.index') }}"
+          class="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors shadow-md inline-block">
+          <i class="fas fa-exclamation-triangle mr-2"></i> Ver Tabla de Alertas
+        </a>
         @include('guardaparque.alertas.crud_index')
       </div>
 
@@ -52,8 +60,6 @@
         @include('partials.reports')
       </div>
     </div>
-
-
   </div>
 
   <script>
@@ -66,40 +72,47 @@
       document.querySelector('#dashboard-nav .nav-btn:first-child').classList.add('active-btn');
     });
 
+    // Implementación corregida de showSection
     function showSection(sectionName, clickedButton) {
       // Ocultar todas las secciones
-      document.querySelectorAll(&#39;.section - content &#39;).forEach(section =& gt; {
-        section.classList.add(&#39; hidden &#39;);
+      document.querySelectorAll('.section-content').forEach(section => {
+        section.classList.add('hidden');
       });
 
       // Mostrar la sección requerida
-      document.getElementById(sectionName).classList.remove(&#39; hidden &#39;);
+      document.getElementById(sectionName).classList.remove('hidden');
 
       // Manejar el estado activo del botón
-      document.querySelectorAll(&#39; #dashboard - nav.nav - btn &#39;).forEach(btn =& gt; {
-        btn.classList.remove(&#39; active - btn &#39;);
+      document.querySelectorAll('#dashboard-nav .nav-btn').forEach(btn => {
+        btn.classList.remove('active-btn');
+        btn.classList.remove('text-green-600', 'font-semibold', 'border-b-2', 'border-green-600');
+        btn.classList.add('text-gray-600', 'hover:text-green-600');
       });
-      clickedButton.classList.add(&#39; active - btn &#39;);
+
+      // Activar el botón clicado
+      clickedButton.classList.remove('text-gray-600', 'hover:text-green-600');
+      clickedButton.classList.add('active-btn', 'text-green-600', 'font-semibold', 'border-b-2', 'border-green-600');
     }
-
-
   </script>
 
   <style>
+    /* Estilos compartidos con Guardaparques */
     .nav-btn {
       padding: 8px 16px;
       border-radius: 6px;
       transition: all 0.2s;
       cursor: pointer;
       color: #4B5563;
-      /* Gris /
-  font-weight: 500;
-  }
-  .nav-btn:hover {
-  background-color: #F3F4F6; / Gris claro al pasar el ratón /
-  }
-  .active-btn {
-  color: #10B981; / Verde */
+      font-weight: 500;
+    }
+
+    .nav-btn:hover {
+      background-color: #F3F4F6;
+    }
+
+    .active-btn {
+      color: #10B981;
+      /* Verde */
       border-bottom: 2px solid #10B981;
       font-weight: 700;
       background-color: #ECFDF5;

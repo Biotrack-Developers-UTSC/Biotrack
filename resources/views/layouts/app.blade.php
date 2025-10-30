@@ -86,19 +86,17 @@
         @yield('content')
     </main>
 
-    {{-- LÓGICA JAVASCRIPT DE PESTAÑAS (Debe estar aquí si no está en un archivo JS externo) --}}
+    {{-- LÓGICA JAVASCRIPT DE PESTAÑAS (Debe estar aquí) --}}
     <script>
-        // ... (Tu código JavaScript para showSection, simularDeteccionesRealTime, etc. va aquí) ...
-        // Dado que solo enviaste las funciones, asumo que las pegarás aquí.
-
+        // Debes pegar la implementación completa de showSection aquí si la estás usando
         function showSection(sectionName, clickedButton) {
-            // ... (implementación de showSection) ...
+            // Ejemplo de implementación de showSection para evitar errores de referencia si esta página se usa
+            console.log(`Cambiando a la sección: ${sectionName}`);
+            // Lógica completa de visibilidad de pestañas
         }
 
-        // ... (Tu función simularDeteccionesRealTime) ...
-
         document.addEventListener('DOMContentLoaded', function () {
-            // ... (Tu lógica de inicialización de pestaña por rol va aquí) ...
+            // Lógica de inicialización del dashboard
         });
     </script>
 </body>

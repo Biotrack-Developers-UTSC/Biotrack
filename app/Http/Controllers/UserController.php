@@ -9,16 +9,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 
-// Este controlador es para que el Administrador gestione otros usuarios y asigne roles.
-
 class UserController extends Controller
 {
     /**
      * Muestra la lista de usuarios.
+     * Usa paginación y pasa los datos a la vista.
      */
     public function index(): View
     {
-        $users = User::paginate(10);
+        $users = User::paginate(15);
         return view('admin.users.index', compact('users'));
     }
 
@@ -39,7 +38,6 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            // Valida que el rol sea uno de los definidos
             'role' => ['required', 'string', Rule::in(['admin', 'guardaparque', 'user'])],
         ]);
 
@@ -59,7 +57,6 @@ class UserController extends Controller
      */
     public function edit(User $usuario): View
     {
-        // Se asume que el binding de ruta encuentra el usuario, si no, usa: User::findOrFail($id)
         return view('admin.users.edit', compact('usuario'));
     }
 

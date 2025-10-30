@@ -8,30 +8,16 @@ use Illuminate\View\View;
 class ConsultaController extends Controller
 {
     /**
-     * Muestra la vista principal de consultas de animales para todos los roles.
-     * Esta es la página de destino para el rol 'user'.
+     * Muestra la vista de consulta (index) con todos los animales.
+     * Esta es la página de destino principal para el Rol 'user'.
+     * (GET /consultas/animales)
      */
     public function index(): View
     {
-        // Muestra todos los animales por defecto
+        // Recuperar todos los animales para la tabla de consultas.
         $animales = Animal::all();
 
-        // La vista 'consultas.index' debe tener el formulario de filtro.
+        // Retorna la vista que contiene la interfaz de búsqueda.
         return view('consultas.index', compact('animales'));
-    }
-
-    /**
-     * Lógica de filtrado de animales (similar a la función filterByType que tenías).
-     */
-    public function filterByType(string $tipo): View
-    {
-        if (!in_array($tipo, ['Pacifico', 'Hostil'])) {
-            $animales = Animal::all();
-            $tipo = 'Todos';
-        } else {
-            $animales = Animal::where('tipo', $tipo)->get();
-        }
-
-        return view('consultas.index', compact('animales', 'tipo'));
     }
 }

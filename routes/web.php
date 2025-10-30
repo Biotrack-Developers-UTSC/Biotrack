@@ -59,12 +59,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
   })->name('juegos.futbol');
 
 
-  // ... (RESTO DE RUTAS PROTEGIDAS) ...
-
-  // RUTA DE ESCANEO DE CÓDIGO QR (Router de Entidades)
+  // 🌟 RUTA DE ESCANEO DE CÓDIGO QR (Router de Entidades)
   Route::get('/scan/{qrCodeData}', [ScanController::class, 'scan'])->name('qr.scan');
 
-  // Ruta de consulta de ficha de animal por ID (Usada internamente por ScanController)
+  // **Ruta de Interfaz de la Cámara** (Destino del botón "Escanear QR")
+  Route::get('/qr/scanner/ui', function () {
+    return view('qr.scanner_ui');
+  })->name('qr.scanner.ui');
+
+
+  // Ruta de consulta de ficha de animal por ID (Destino del ScanController)
   Route::get('/animales/ficha/{animal}', [AnimalController::class, 'show'])->name('animales.ficha');
 
   // A. USUARIO REGULAR (user): Consultas de animales (Acceso general)
@@ -75,6 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
   // B. GUARDAPARQUES (guardaparque): Dashboard, CRUD de Animales y Alertas
   Route::middleware('role:guardaparque|admin')->group(function () {
     Route::get('/dashboard/gestion', [GuardaparquesController::class, 'dashboard'])->name('guardaparques.dashboard');
+
     Route::resource('animales', AnimalController::class)->except(['show']);
     Route::resource('alertas', AlertaController::class);
   });
