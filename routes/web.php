@@ -11,7 +11,7 @@ use App\Http\Controllers\AlertaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GuardaparquesController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ScanController; // Controlador de QR Router
+use App\Http\Controllers\ScanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +19,7 @@ use App\Http\Controllers\ScanController; // Controlador de QR Router
 |--------------------------------------------------------------------------
 */
 
-// Página de Inicio PÚBLICA (Muestra el index.blade.php)
+// Página de Inicio PÚBLICA
 Route::get('/', function () {
   if (Auth::check()) {
     return redirect()->route('welcome');
@@ -41,7 +41,6 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
   ->middleware('auth')
   ->name('logout');
 
-
 /*
 |--------------------------------------------------------------------------
 | 2. RUTA CENTRAL DE BIENVENIDA POST-LOGIN
@@ -50,45 +49,46 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-  // RUTA DE BIENVENIDA
+  // Bienvenida
   Route::get('/welcome', [HomeController::class, 'index'])->name('welcome');
 
-  // 🌟 RUTA DEL JUEGO (Accesible por todos los autenticados)
-  Route::get('/juegos/futbol', function () {
-    return view('futbol_gamepage');
-  })->name('juegos.futbol');
+  // Juego
+  Route::get('/juegos/futbol', fn() => view('futbol_gamepage'))->name('juegos.futbol');
 
+  // Escaneo de QR (disponible para cualquier usuario logueado)
+  Route::get('/qr/scanner/ui', fn() => view('qr.scanner_ui'))
+    ->name('qr.scanner.ui'); // Vista del escáner (cámara o lector USB)
 
-  // 🌟 RUTA DE ESCANEO DE CÓDIGO QR (Router de Entidades)
-  Route::get('/scan/{qrCodeData}', [ScanController::class, 'scan'])->name('qr.scan');
+  Route::get('/scan/{qrCodeData}', [ScanController::class, 'scan'])
+    ->name('qr.scan'); // Procesa el código leído
 
-  // **Ruta de Interfaz de la Cámara** (Destino del botón "Escanear QR")
-  Route::get('/qr/scanner/ui', function () {
-    return view('qr.scanner_ui');
-  })->name('qr.scanner.ui');
+  // Ficha pública de animales
+  Route::get('/animales/ficha/{animal}', [AnimalController::class, 'ficha_publica'])->name('animales.ficha_publica');
 
-
-  // Ruta de consulta de ficha de animal por ID (Destino del ScanController)
-  Route::get('/animales/ficha/{animal}', [AnimalController::class, 'show'])->name('animales.ficha');
-
-  // A. USUARIO REGULAR (user): Consultas de animales (Acceso general)
+  // Consultas de animales (acceso general)
   Route::get('/consultas/animales', [ConsultaController::class, 'index'])
-    ->middleware('role:user|guardaparque|admin')
-    ->name('consultas.animales');
+    ->middleware('auth') // cualquier usuario autenticado
+    ->name('consultas.index');
 
-  // B. GUARDAPARQUES (guardaparque): Dashboard, CRUD de Animales y Alertas
+  // Guardaparques y Admin
   Route::middleware('role:guardaparque|admin')->group(function () {
     Route::get('/dashboard/gestion', [GuardaparquesController::class, 'dashboard'])->name('guardaparques.dashboard');
 
-    Route::resource('animales', AnimalController::class)->except(['show']);
-    Route::resource('alertas', AlertaController::class);
+    // ✅ Ajuste clave aquí:
+    Route::resource('animales', AnimalController::class)->parameters([
+      'animales' => 'animal'
+    ]);
+
+    // ✅ Ajuste clave aquí:
+    Route::resource('alertas', AlertaController::class)->parameters([
+      'alertas' => 'alerta'
+    ]);
   });
 
-  // C. ADMINISTRADOR (admin): Gestión de Usuarios y Configuración
+  // Admin
   Route::middleware('role:admin')->group(function () {
     Route::get('/dashboard/administracion', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::resource('administracion/usuarios', UserController::class)->names('administracion.usuarios');
     Route::get('/configuracion', [AdminController::class, 'config'])->name('admin.config');
   });
-
 });

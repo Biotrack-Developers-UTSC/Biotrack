@@ -9,15 +9,18 @@ class Animal extends Model
 {
     use HasFactory;
 
+    // 👇 Laravel por defecto buscaría "animals", lo corregimos
+    protected $table = 'animales';
+
     protected $fillable = [
         'nombre_comun',
         'nombre_cientifico',
         'habitat',
-        'tipo', // Ejemplo: Pacifico, Hostil
-        'latitud',     // Opcional: Última ubicación lat
-        'longitud',    // Opcional: Última ubicación lng
+        'tipo',
+        'latitud',
+        'longitud',
         'descripcion',
-        'imagen_path', // Ruta de almacenamiento de la imagen
-        'codigo_qr',   // Ruta del código QR generado
+        'imagen_path',
+        'codigo_qr',
     ];
 }

@@ -12,12 +12,29 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     /**
-     * Muestra la lista de usuarios.
-     * Usa paginación y pasa los datos a la vista.
+     * Muestra la lista de usuarios con filtros.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::paginate(15);
+        $query = User::query();
+
+        // 🔍 Filtros
+        if ($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Ordenar y paginar
+        $users = $query->orderBy('id', 'asc')->paginate(15)->appends($request->query());
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -49,7 +66,8 @@ class UserController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        return redirect()->route('administracion.usuarios.index')->with('success', 'Usuario creado exitosamente.');
+        return redirect()->route('administracion.usuarios.index')
+            ->with('success', 'Usuario creado exitosamente.');
     }
 
     /**
@@ -84,7 +102,8 @@ class UserController extends Controller
 
         $usuario->update($data);
 
-        return redirect()->route('administracion.usuarios.index')->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('administracion.usuarios.index')
+            ->with('success', 'Usuario actualizado exitosamente.');
     }
 
     /**
@@ -93,6 +112,7 @@ class UserController extends Controller
     public function destroy(User $usuario): RedirectResponse
     {
         $usuario->delete();
-        return redirect()->route('administracion.usuarios.index')->with('success', 'Usuario eliminado exitosamente.');
+        return redirect()->route('administracion.usuarios.index')
+            ->with('success', 'Usuario eliminado exitosamente.');
     }
 }

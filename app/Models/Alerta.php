@@ -11,6 +11,8 @@ class Alerta extends Model
 
     // Indica que no usamos timestamps automáticos si las alertas IoT proveen su propio timestamp
     // public $timestamps = false; 
+    // 👇 Laravel por defecto buscaría "animals", lo corregimos
+    protected $table = 'alertas';
 
     protected $fillable = [
         'id_alerta',
