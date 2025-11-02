@@ -15,19 +15,15 @@ use App\Http\Controllers\ScanController;
 
 /*
 |--------------------------------------------------------------------------
-| 1. Rutas PÚBLICAS y de Autenticación
+| RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
 
-// Página de Inicio PÚBLICA
 Route::get('/', function () {
-  if (Auth::check()) {
-    return redirect()->route('welcome');
-  }
-  return view('index');
+  return Auth::check() ? redirect()->route('welcome') : view('index');
 })->name('index');
 
-// Rutas de Login y Registro 
+// Login y Registro
 Route::middleware('guest')->group(function () {
   Route::get('register', fn() => view('auth.register'))->name('register');
   Route::post('register', [RegisteredUserController::class, 'store'])->name('register.post');
@@ -36,59 +32,64 @@ Route::middleware('guest')->group(function () {
   Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.post');
 });
 
-// Cerrar Sesión
+// Logout
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
   ->middleware('auth')
   ->name('logout');
 
 /*
 |--------------------------------------------------------------------------
-| 2. RUTA CENTRAL DE BIENVENIDA POST-LOGIN
+| RUTAS PRIVADAS (Usuarios autenticados)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'verified'])->group(function () {
 
-  // Bienvenida
   Route::get('/welcome', [HomeController::class, 'index'])->name('welcome');
-
-  // Juego
   Route::get('/juegos/futbol', fn() => view('futbol_gamepage'))->name('juegos.futbol');
 
-  // Escaneo de QR (disponible para cualquier usuario logueado)
-  Route::get('/qr/scanner/ui', fn() => view('qr.scanner_ui'))
-    ->name('qr.scanner.ui'); // Vista del escáner (cámara o lector USB)
-
-  Route::get('/scan/{qrCodeData}', [ScanController::class, 'scan'])
-    ->name('qr.scan'); // Procesa el código leído
+  // Escaneo QR
+  Route::get('/qr/scanner/ui', fn() => view('qr.scanner_ui'))->name('qr.scanner.ui');
+  Route::get('/scan/{qrCodeData}', [ScanController::class, 'scan'])->name('qr.scan');
 
   // Ficha pública de animales
   Route::get('/animales/ficha/{animal}', [AnimalController::class, 'ficha_publica'])->name('animales.ficha_publica');
 
-  // Consultas de animales (acceso general)
-  Route::get('/consultas/animales', [ConsultaController::class, 'index'])
-    ->middleware('auth') // cualquier usuario autenticado
-    ->name('consultas.index');
+  // CRUD de animales
+  Route::resource('animales', AnimalController::class)->parameters(['animales' => 'animal']);
+  Route::get('/animales/{id}/regenerar-qr', [AnimalController::class, 'regenerarQR'])->name('animales.regenerarQR');
 
-  // Guardaparques y Admin
-  Route::middleware('role:guardaparque|admin')->group(function () {
+  // Consultas
+  Route::get('/consultas/animales', [ConsultaController::class, 'index'])->name('consultas.index');
+
+  /*
+  |--------------------------------------------------------------------------
+  | Guardaparques y Admin
+  |--------------------------------------------------------------------------
+  */
+  Route::middleware(['auth', 'role:guardaparque|admin'])->group(function () {
+    // Dashboard guardaparques
     Route::get('/dashboard/gestion', [GuardaparquesController::class, 'dashboard'])->name('guardaparques.dashboard');
 
-    // ✅ Ajuste clave aquí:
-    Route::resource('animales', AnimalController::class)->parameters([
-      'animales' => 'animal'
-    ]);
-
-    // ✅ Ajuste clave aquí:
-    Route::resource('alertas', AlertaController::class)->parameters([
-      'alertas' => 'alerta'
-    ]);
+    // CRUD de alertas
+    Route::resource('alertas', AlertaController::class)->parameters(['alertas' => 'alerta']);
   });
 
-  // Admin
-  Route::middleware('role:admin')->group(function () {
-    Route::get('/dashboard/administracion', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::resource('administracion/usuarios', UserController::class)->names('administracion.usuarios');
-    Route::get('/configuracion', [AdminController::class, 'config'])->name('admin.config');
+
+  /*
+  |--------------------------------------------------------------------------
+  | RUTAS ADMIN
+  |--------------------------------------------------------------------------
+  */
+  Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/config', [AdminController::class, 'index'])->name('admin.config');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::post('/config/save', [AdminController::class, 'save'])->name('admin.config.save');
+    Route::get('/config/testdb', [AdminController::class, 'testDB'])->name('admin.config.testdb');
+    Route::post('/config/testmail', [AdminController::class, 'testArduinoMail'])->name('admin.arduino.testmail');
+    Route::get('/admin/iot', [AdminController::class, 'iotDashboard'])->name('admin.iot');
+
+    // Usuarios
+    Route::resource('usuarios', UserController::class)->names('administracion.usuarios');
   });
+
 });

@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             // AlertaSeeder::class, // Pendiente de crear
         ]);
 
+        $this->call(AlertasSeeder::class);
+
         // Nota: Asegúrate de tener los controladores de Auth/Users creados para evitar errores.
     }
 }

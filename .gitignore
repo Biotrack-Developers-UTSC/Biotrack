@@ -1,8 +1,18 @@
+# ==========================================
+# Laravel - .gitignore personalizado
+# ==========================================
+
+# --- Archivos del sistema ---
 *.log
 .DS_Store
+Thumbs.db
+
+# --- Archivos de entorno ---
 .env
 .env.backup
 .env.production
+
+# --- Configuración de editores ---
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -12,13 +22,30 @@
 /.vscode
 /.zed
 /auth.json
+
+# --- Dependencias ---
 /node_modules
+/vendor
+
+# --- Compilaciones y temporales ---
 /public/build
 /public/hot
 /public/storage
+
+# --- Archivos de cache ---
 /storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/storage/logs/*
 /storage/pail
-/vendor
+/storage/debugbar
+
+# --- Archivos de Homestead ---
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# --- Otros ---
+npm-debug.log
+yarn-error.log

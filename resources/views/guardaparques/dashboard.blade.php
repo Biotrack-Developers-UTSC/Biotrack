@@ -1,60 +1,44 @@
+{{-- resources/views/guardaparques/dashboard.blade.php --}}
 @extends('layouts.app')
+
 @section('title', 'Gestión de Guardaparques | BioTrack')
 
 @section('content')
-
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-4xl font-extrabold text-green-700 mb-8">
-      Panel de Gestión de Biodiversidad
-    </h1>
+    <h1 class="text-4xl font-extrabold text-green-700 mb-8">Panel de Gestión de Biodiversidad</h1>
 
-    {{-- MENÚ DE NAVEGACIÓN DENTRO DEL DASHBOARD --}}
     <nav class="flex space-x-4 border-b pb-2 mb-6" id="dashboard-nav">
-      <button onclick="showSection('dashboard-general', this)" class="nav-btn active-btn">
-        Resumen General
-      </button>
-      <button onclick="showSection('gestion-animales', this)" class="nav-btn">
-        Gestión de Especies
-      </button>
-      <button onclick="showSection('gestion-alertas', this)" class="nav-btn">
-        Alertas IoT
-      </button>
-      <button onclick="showSection('reportes', this)" class="nav-btn">
-        Reportes
-      </button>
+      <button onclick="showSection('dashboard-general', this)" class="nav-btn active-btn">Resumen General</button>
+      <button onclick="showSection('gestion-animales', this)" class="nav-btn">Gestión de Especies</button>
+      <button onclick="showSection('gestion-alertas', this)" class="nav-btn">Alertas IoT</button>
+      <button onclick="showSection('reportes', this)" class="nav-btn">Reportes</button>
     </nav>
 
     <div class="space-y-8">
-
-      {{-- SECCIÓN 1: RESUMEN GENERAL (Estadísticas) --}}
+      {{-- Resumen General --}}
       <div id="dashboard-general" class="section-content">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Resumen del Área</h2>
-        @include('partials.dashboard_stats') {{-- Contadores: Animales registrados, Alertas activas, Sensores, etc. --}}
+        <p>Total Animales: {{ $totalAnimales }}</p>
+        <p>Alertas Activas: {{ $alertasActivas }}</p>
+        <p>Total Sensores: {{ $totalSensores }}</p>
       </div>
 
-      {{-- SECCIÓN 2: GESTIÓN DE ANIMALES (CRUD) --}}
+      {{-- Gestión de Animales --}}
       <div id="gestion-animales" class="section-content hidden">
         <h2 class="text-3xl font-bold text-green-600 mb-6">CRUD de Especies</h2>
-        {{-- ENLACE AL CONTROLADOR DEL CRUD --}}
         <a href="{{ route('animales.index') }}"
           class="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors shadow-md inline-block">
           <i class="fas fa-table mr-2"></i> Ver Tabla de Especies
         </a>
-        @include('guardaparques.animales.crud_index')
       </div>
 
-      {{-- SECCIÓN 3: GESTIÓN DE ALERTAS IoT --}}
+      {{-- Gestión de Alertas --}}
       <div id="gestion-alertas" class="section-content hidden">
         <h2 class="text-3xl font-bold text-red-600 mb-6">Gestión de Alertas (Sensores Arduino/IoT)</h2>
-        {{-- ENLACE AL CONTROLADOR DE ALERTAS --}}
-        <a href="{{ route('alertas.index') }}"
-          class="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors shadow-md inline-block">
-          <i class="fas fa-exclamation-triangle mr-2"></i> Ver Tabla de Alertas
-        </a>
-        @include('guardaparque.alertas.crud_index')
+        @include('guardaparques.alertas.index', ['alertas' => $alertas])
       </div>
 
-      {{-- SECCIÓN 4: REPORTES --}}
+      {{-- Reportes --}}
       <div id="reportes" class="section-content hidden">
         <h2 class="text-3xl font-bold text-blue-600 mb-6">Generación de Reportes</h2>
         @include('partials.reports')
@@ -63,60 +47,11 @@
   </div>
 
   <script>
-    // JS para controlar la navegación interna (showSection)
-    document.addEventListener('DOMContentLoaded', () => {
-      // Asegurar que solo la primera sección esté activa al inicio
-      document.querySelectorAll('.section-content').forEach((section, index) => {
-        section.classList.toggle('hidden', index !== 0);
-      });
-      document.querySelector('#dashboard-nav .nav-btn:first-child').classList.add('active-btn');
-    });
-
-    // Implementación corregida de showSection
     function showSection(sectionName, clickedButton) {
-      // Ocultar todas las secciones
-      document.querySelectorAll('.section-content').forEach(section => {
-        section.classList.add('hidden');
-      });
-
-      // Mostrar la sección requerida
+      document.querySelectorAll('.section-content').forEach(section => section.classList.add('hidden'));
       document.getElementById(sectionName).classList.remove('hidden');
-
-      // Manejar el estado activo del botón
-      document.querySelectorAll('#dashboard-nav .nav-btn').forEach(btn => {
-        btn.classList.remove('active-btn');
-        btn.classList.remove('text-green-600', 'font-semibold', 'border-b-2', 'border-green-600');
-        btn.classList.add('text-gray-600', 'hover:text-green-600');
-      });
-
-      // Activar el botón clicado
-      clickedButton.classList.remove('text-gray-600', 'hover:text-green-600');
-      clickedButton.classList.add('active-btn', 'text-green-600', 'font-semibold', 'border-b-2', 'border-green-600');
+      document.querySelectorAll('#dashboard-nav .nav-btn').forEach(btn => btn.classList.remove('active-btn'));
+      clickedButton.classList.add('active-btn');
     }
   </script>
-
-  <style>
-    /* Estilos compartidos con Guardaparques */
-    .nav-btn {
-      padding: 8px 16px;
-      border-radius: 6px;
-      transition: all 0.2s;
-      cursor: pointer;
-      color: #4B5563;
-      font-weight: 500;
-    }
-
-    .nav-btn:hover {
-      background-color: #F3F4F6;
-    }
-
-    .active-btn {
-      color: #10B981;
-      /* Verde */
-      border-bottom: 2px solid #10B981;
-      font-weight: 700;
-      background-color: #ECFDF5;
-    }
-  </style>
-
 @endsection

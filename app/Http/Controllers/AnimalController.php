@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Animal;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AnimalController extends Controller
 {
-    /** 🐾 Listado principal de animales (GET /animales) */
+    /** 📋 Mostrar listado de animales con filtros */
     public function index(Request $request)
     {
         $query = Animal::query();
@@ -37,120 +33,168 @@ class AnimalController extends Controller
         return view('guardaparques.animales.index', compact('animales'));
     }
 
-    /** Formulario de creación */
-    public function create(): View
+    /** 🦎 Formulario de registro de nueva especie */
+    public function create()
     {
         return view('guardaparques.animales.create');
     }
 
-    /** Guarda un nuevo animal y genera su QR */
-    public function store(Request $request): RedirectResponse
+    /** 💾 Guardar nueva especie con imagen y QR */
+    public function store(Request $request)
     {
+        // Validación (hasta 10 MB)
         $validatedData = $request->validate([
-            'nombre_comun' => 'required|max:255',
-            'nombre_cientifico' => 'required|max:255|unique:animales,nombre_cientifico',
-            'habitat' => 'required|max:255',
-            'tipo' => ['required', Rule::in(['Pacífico', 'Hostil'])],
-            'descripcion' => 'nullable|max:1000',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'nombre_comun' => 'required|string|max:255',
+            'nombre_cientifico' => 'required|string|max:255',
+            'habitat' => 'nullable|string|max:255',
+            'tipo' => 'required|string',
+            'descripcion' => 'nullable|string',
             'latitud' => 'nullable|numeric',
             'longitud' => 'nullable|numeric',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:10240', // 10 MB
+        ], [
+            'imagen.max' => 'La imagen no puede superar los 10 MB.',
         ]);
 
-        $imagePath = $request->file('imagen')
-            ? $request->file('imagen')->store('imagenes/animales', 'public')
-            : null;
+        // Crear registro inicial
+        $animal = Animal::create($request->except('imagen'));
 
-        $animal = Animal::create(array_merge($validatedData, [
-            'imagen_path' => $imagePath,
-        ]));
+        // Carpetas
+        $animalDir = public_path('images/animals');
+        $qrDir = public_path('images/qr');
+        if (!is_dir($animalDir))
+            mkdir($animalDir, 0755, true);
+        if (!is_dir($qrDir))
+            mkdir($qrDir, 0755, true);
 
-        $qrCodeContent = "ANIMAL-" . $animal->id;
-        $qrPath = 'QR_images/' . $animal->id . '.svg';
-
-        if (!Storage::disk('public')->exists('QR_images')) {
-            Storage::disk('public')->makeDirectory('QR_images');
+        // Subir imagen si existe
+        if ($request->hasFile('imagen')) {
+            $file = $request->file('imagen');
+            $filename = 'animal_' . $animal->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($animalDir, $filename);
+            $animal->imagen_path = 'images/animals/' . $filename;
         }
 
-        $svg_qr = QrCode::size(200)->generate($qrCodeContent);
-        Storage::disk('public')->put($qrPath, $svg_qr);
+        // Generar QR
+        $qrPath = 'images/qr/qr_' . $animal->id . '.svg';
+        $qrData = "Especie: {$animal->nombre_comun}\nNombre científico: {$animal->nombre_cientifico}\nHábitat: {$animal->habitat}\nTipo: {$animal->tipo}";
+        QrCode::format('svg')->size(300)->generate($qrData, public_path($qrPath));
+        $animal->codigo_qr = $qrPath;
 
-        $animal->update(['codigo_qr' => 'storage/' . $qrPath]);
+        $animal->save();
 
-        return redirect()
-            ->route('animales.index')
-            ->with('success', "Especie registrada con éxito. Código QR generado: $qrCodeContent");
+        return redirect()->route('animales.index')->with('success', '✅ Especie registrada correctamente.');
     }
 
-    /** Vista detallada */
-    public function show(Animal $animal): View
+    /** 📄 Mostrar detalles del animal */
+    public function show(Animal $animal)
     {
         return view('guardaparques.animales.show', compact('animal'));
     }
 
-    /** Vista pública */
-    public function ficha_publica(Animal $animal): View
+    /** 🌎 Ficha pública */
+    public function ficha_publica(Animal $animal)
     {
         return view('guardaparques.animales.ficha_publica', compact('animal'));
     }
 
-    /** Formulario de edición */
-    public function edit(Animal $animal): View
+    /** ✏️ Formulario de edición */
+    public function edit(Animal $animal)
     {
         return view('guardaparques.animales.edit', compact('animal'));
     }
 
-    /** Actualiza un animal */
-    public function update(Request $request, Animal $animal): RedirectResponse
+    /** 💾 Actualizar especie con imagen y QR */
+    public function update(Request $request, Animal $animal)
     {
-        $validatedData = $request->validate([
-            'nombre_comun' => 'required|max:255',
-            'nombre_cientifico' => [
-                'required',
-                'max:255',
-                Rule::unique('animales', 'nombre_cientifico')->ignore($animal->id),
-            ],
-            'habitat' => 'required|max:255',
-            'tipo' => ['required', Rule::in(['Pacífico', 'Hostil'])],
-            'descripcion' => 'nullable|max:1000',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        $request->validate([
+            'nombre_comun' => 'required|string|max:255',
+            'nombre_cientifico' => 'required|string|max:255',
+            'habitat' => 'nullable|string|max:255',
+            'tipo' => 'required|string',
+            'descripcion' => 'nullable|string',
             'latitud' => 'nullable|numeric',
             'longitud' => 'nullable|numeric',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:10240', // 10 MB
+        ], [
+            'imagen.max' => 'La imagen no puede superar los 10 MB.',
         ]);
 
-        if ($request->hasFile('imagen')) {
-            if ($animal->imagen_path) {
-                Storage::disk('public')->delete($animal->imagen_path);
-            }
-            $imagePath = $request->file('imagen')->store('imagenes/animales', 'public');
-        } else {
-            $imagePath = $animal->imagen_path;
-        }
-
-        $animal->update(array_merge($validatedData, [
-            'imagen_path' => $imagePath,
+        // Actualizar campos
+        $animal->fill($request->only([
+            'nombre_comun',
+            'nombre_cientifico',
+            'habitat',
+            'tipo',
+            'descripcion',
+            'latitud',
+            'longitud'
         ]));
 
-        return redirect()
-            ->route('animales.index')
-            ->with('success', 'Especie actualizada correctamente.');
-    }
+        // Procesar imagen si se subió
+        if ($request->hasFile('imagen')) {
+            $file = $request->file('imagen');
+            $filename = 'animal_' . $animal->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $animalDir = public_path('images/animals');
+            if (!is_dir($animalDir))
+                mkdir($animalDir, 0755, true);
 
-    /** Elimina un animal */
-    public function destroy(Animal $animal): RedirectResponse
-    {
-        if ($animal->imagen_path) {
-            Storage::disk('public')->delete($animal->imagen_path);
+            // Borrar imagen anterior
+            if ($animal->imagen_path && file_exists(public_path($animal->imagen_path))) {
+                unlink(public_path($animal->imagen_path));
+            }
+
+            $file->move($animalDir, $filename);
+            $animal->imagen_path = 'images/animals/' . $filename;
         }
 
-        if ($animal->codigo_qr) {
-            Storage::disk('public')->delete(str_replace('storage/', '', $animal->codigo_qr));
+        // Generar QR
+        $qrDir = public_path('images/qr');
+        if (!is_dir($qrDir))
+            mkdir($qrDir, 0755, true);
+        $qrPath = 'images/qr/qr_' . $animal->id . '.svg';
+        $qrData = route('animales.show', $animal->id);
+        QrCode::format('svg')->size(300)->generate($qrData, public_path($qrPath));
+        $animal->codigo_qr = $qrPath;
+
+        $animal->save();
+
+        return redirect()->route('animales.index')->with('success', '✅ Especie actualizada correctamente.');
+    }
+
+    /** 🔁 Regenerar QR */
+    public function regenerarQR($id)
+    {
+        $animal = Animal::findOrFail($id);
+        $qrDir = public_path('images/qr');
+        if (!is_dir($qrDir))
+            mkdir($qrDir, 0755, true);
+
+        $qrPath = 'images/qr/qr_' . $animal->id . '.svg';
+        $qrData = "Especie: {$animal->nombre_comun}\nNombre científico: {$animal->nombre_cientifico}\nHábitat: {$animal->habitat}\nTipo: {$animal->tipo}";
+        QrCode::format('svg')->size(300)->generate($qrData, public_path($qrPath));
+
+        $animal->codigo_qr = $qrPath;
+        $animal->save();
+
+        return redirect()->back()->with('success', '🔁 QR regenerado correctamente.');
+    }
+
+    /** 🗑️ Eliminar especie e imágenes */
+    public function destroy($id)
+    {
+        $animal = Animal::findOrFail($id);
+
+        if ($animal->imagen_path && file_exists(public_path($animal->imagen_path))) {
+            unlink(public_path($animal->imagen_path));
+        }
+
+        if ($animal->codigo_qr && file_exists(public_path($animal->codigo_qr))) {
+            unlink(public_path($animal->codigo_qr));
         }
 
         $animal->delete();
 
-        return redirect()
-            ->route('animales.index')
-            ->with('success', 'Especie eliminada correctamente.');
+        return redirect()->route('animales.index')->with('success', '❌ Especie eliminada correctamente.');
     }
 }

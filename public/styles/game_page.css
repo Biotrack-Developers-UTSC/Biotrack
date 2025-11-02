@@ -16,11 +16,12 @@
 /* ===== Header y Navegación ===== */
 header {
     background: rgba(0, 0, 0, 0.8);
-    color: white;
+    color: var(--text-color);
     padding: 15px 0;
     position: sticky;
     top: 0;
     z-index: 1000;
+    backdrop-filter: blur(8px) saturate(150%);
 }
 
 .header-content {
@@ -29,58 +30,82 @@ header {
     align-items: center;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-nav ul {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-}
-
 nav a {
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
     font-weight: 500;
+    margin-right: 16px;
+    transition: color 0.3s;
 }
 
+nav a:hover,
+nav a.active {
+    color: var(--accent-color);
+}
+
+/* ===== Botones ===== */
 .btn {
     display: inline-block;
-    padding: 10px 25px;
-    background: #FF5733;
-    /* Naranja/Rojo de Fútbol */
-    color: white;
-    border-radius: 5px;
-    text-decoration: none;
+    padding: 12px 30px;
+    background: var(--primary-color);
+    color: var(--text-color);
+    border-radius: 8px;
     font-weight: bold;
-    transition: background 0.3s, transform 0.2s;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.3s;
 }
 
 .btn:hover {
-    background: #C70039;
-    transform: translateY(-2px);
+    background: var(--secondary-color);
+    transform: scale(1.05);
 }
 
 /* ===== Hero Section ===== */
 .hero {
-    background: url('https://placehold.co/1920x800/0b1220/ffffff?text=Fondo+de+Cancha') no-repeat center center/cover;
+    background: var(--hero-bg) no-repeat center center/cover;
     min-height: 500px;
     display: flex;
     align-items: center;
-    color: white;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+    color: var(--text-color);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    margin-left: 20px;
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .hero h1 {
     font-size: 3rem;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .hero p {
     font-size: 1.2rem;
-    max-width: 600px;
     margin-bottom: 20px;
 }
 
@@ -88,9 +113,8 @@ nav a {
 .features,
 .screenshots,
 .download {
-    padding: 60px 0;
+    padding: 60px 20px;
     background: #f4f4f4;
-    /* Fondo más claro para el contenido */
 }
 
 .section-title {
@@ -100,7 +124,7 @@ nav a {
     margin-bottom: 40px;
 }
 
-/* Características Grid */
+/* ===== Features Grid ===== */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -108,25 +132,26 @@ nav a {
 }
 
 .feature-card {
-    background: white;
+    background: #fff;
     padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
     text-align: center;
-    transition: transform 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .feature-icon i {
     font-size: 2.5rem;
-    color: #FF5733;
+    color: var(--primary-color);
     margin-bottom: 15px;
 }
 
-/* Capturas de Pantalla */
+/* ===== Screenshots ===== */
 .screenshots-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -135,12 +160,16 @@ nav a {
 
 .screenshot img {
     width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-/* Requisitos del Sistema */
+.screenshot img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Requisitos y Plataformas ===== */
 .system-requirements h3,
 .platforms h3 {
     font-size: 1.5rem;
@@ -157,15 +186,14 @@ nav a {
 }
 
 .requirement ul {
-    padding-left: 20px;
     text-align: left;
+    padding-left: 20px;
 }
 
-/* Footer */
+/* ===== Footer ===== */
 footer {
     background: #2e3d34;
-    /* Usando un color más BioTrack para el footer */
-    color: white;
+    color: #fff;
     padding: 20px 0;
 }
 
@@ -174,4 +202,20 @@ footer {
     padding-top: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     margin-top: 20px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .features-grid,
+    .screenshots-grid {
+        gap: 15px;
+    }
 }

@@ -48,9 +48,9 @@
         <div class="grid md:grid-cols-2 gap-6">
             <div>
                 <h3 class="font-semibold text-gray-700 mb-2">Imagen</h3>
+                {{-- Mostrar imagen del animal --}}
                 @if ($animal->imagen_path)
-                    <img src="{{ asset('storage/' . $animal->imagen_path) }}" alt="Imagen del animal"
-                        class="rounded-lg shadow-md w-full">
+                    <img src="{{ asset($animal->imagen_path) }}" alt="Imagen del animal" class="rounded-lg shadow-md w-full">
                 @else
                     <div class="bg-gray-100 rounded-lg h-48 flex items-center justify-center text-gray-500">
                         Sin imagen disponible
@@ -60,8 +60,9 @@
 
             <div>
                 <h3 class="font-semibold text-gray-700 mb-2">Código QR</h3>
+                {{-- Mostrar QR --}}
                 @if ($animal->codigo_qr)
-                    <img src="{{ asset('storage/' . $animal->codigo_qr) }}" alt="QR" class="w-32 rounded-lg shadow">
+                    <img src="{{ asset($animal->codigo_qr) }}" alt="QR" class="w-32 rounded-lg shadow">
                 @else
                     <p class="text-gray-500">No hay QR generado.</p>
                 @endif
@@ -91,6 +92,6 @@
                     .addTo(map)
                     .bindPopup("<b>{{ $animal->nombre_comun }}</b><br>{{ $animal->habitat }}");
             @endif
-            });
+                    });
     </script>
 @endsection

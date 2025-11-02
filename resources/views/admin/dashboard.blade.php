@@ -75,7 +75,7 @@
           class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors shadow-md inline-block">
           <i class="fas fa-exclamation-triangle mr-2"></i> Ver Tabla de Alertas
         </a>
-        @include('guardaparque.alertas.index')
+        @include('guardaparques.alertas.index')
       </div>
 
       {{-- SECCIÓN 5: CONFIGURACIÓN AVANZADA --}}

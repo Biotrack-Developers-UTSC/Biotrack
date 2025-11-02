@@ -54,3 +54,58 @@ class AnimalSeeder extends Seeder
         $this->command->info('Especies de prueba creadas con éxito.');
     }
 }
+
+
+/** 
+ * <?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use App\Models\Animal;
+
+class AnimalSeeder extends Seeder
+{
+    public function run(): void
+    {
+        Animal::create([
+            'nombre_comun' => 'Jaguar',
+            'nombre_cientifico' => 'Panthera onca',
+            'habitat' => 'Selva tropical densa',
+            'tipo' => 'Hostil',
+            'descripcion' => 'El felino más grande de América.',
+            'imagen_path' => 'images/animals/jaguar.jpg',
+            'codigo_qr' => 'images/qr/qr_1.svg',
+            'latitud' => 20.6735,
+            'longitud' => -87.0583,
+        ]);
+
+        Animal::create([
+            'nombre_comun' => 'Tucán Esmeralda',
+            'nombre_cientifico' => 'Aulacorhynchus prasinus',
+            'habitat' => 'Bosques de montaña',
+            'tipo' => 'Pacífico',
+            'descripcion' => 'Ave colorida de pico verde.',
+            'imagen_path' => 'images/animals/tucan.jpg',
+            'codigo_qr' => 'images/qr/qr_2.svg',
+            'latitud' => 17.0654,
+            'longitud' => -96.7237,
+        ]);
+
+        Animal::create([
+            'nombre_comun' => 'Ocelote',
+            'nombre_cientifico' => 'Leopardus pardalis',
+            'habitat' => 'Zonas pantanosas y selva baja',
+            'tipo' => 'Hostil',
+            'descripcion' => 'Felino mediano de manchas únicas.',
+            'imagen_path' => 'images/animals/ocelote.jpg',
+            'codigo_qr' => 'images/qr/qr_3.svg',
+            'latitud' => 19.4326,
+            'longitud' => -99.1332,
+        ]);
+
+        $this->command->info('🐾 Especies con imágenes y QR cargadas correctamente.');
+    }
+}
+
+ */
