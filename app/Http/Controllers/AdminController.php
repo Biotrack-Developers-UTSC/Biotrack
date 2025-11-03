@@ -2,127 +2,97 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
+
 class AdminController extends Controller
 {
-    /**
-     * Muestra el dashboard principal para el Administrador.
-     */
+    /** Dashboard principal del Admin */
     public function dashboard(): View
     {
         $user = Auth::user();
-        // Cargar estadísticas generales de la aplicación y el sistema.
-
         return view('admin.dashboard', compact('user'));
     }
 
-    public function iotDashboard()
+    /** Panel de configuración IoT / Arduino */
+    public function iotDashboard(): View
     {
-        // Puedes enviar datos de sensores o alertas si los tienes
-        // Por ahora, solo muestra la vista
-        return view('admin.iot_dashboard');
-    }
-
-
-    /**
-     * Muestra la vista de configuración avanzada del sistema (ej. logs, ajustes de mail).
-     */
-    public function config(): View
-    {
-        return view('admin.config');
-    }
-    /**
-     * Muestra la página principal de configuración avanzada
-     */
-    public function index()
-    {
-        // Config general
+        // Cargar datos de configuración desde la BD
         $configGeneral = DB::table('config')->where('section', 'general')->pluck('value', 'key')->toArray();
-
-        // Config Arduino
         $arduino = DB::table('config')->where('section', 'arduino')->pluck('value', 'key')->toArray();
-
-        // Config SMTP
         $smtp = DB::table('config')->where('section', 'smtp')->pluck('value', 'key')->toArray();
 
-        // Tablas DB y conteo de registros
-        $tables = DB::select('SHOW TABLES');
-        $dbTables = [];
-        $dbName = env('DB_DATABASE');
-        foreach ($tables as $table) {
-            $tableName = $table->{'Tables_in_' . $dbName};
-            $dbTables[$tableName] = DB::table($tableName)->count();
-        }
+        // Valores por defecto si faltan
+        $arduino = array_merge([
+            'distance_threshold' => 50,
+            'alert_cooldown_ms' => 30000,
+            'use_custom_mail' => $arduino['use_custom_mail'] ?? 'no',
+        ], $arduino);
 
-        // PHP config
-        $phpConfig = [
-            'memory_limit' => ini_get('memory_limit'),
-            'upload_max_filesize' => ini_get('upload_max_filesize'),
-            'post_max_size' => ini_get('post_max_size'),
-            'max_execution_time' => ini_get('max_execution_time'),
-        ];
+        $smtp = array_merge([
+            'host' => 'smtp.gmail.com',
+            'port' => 465,
+            'user' => '',
+            'pass' => '',
+            'encryption' => 'ssl',
+            'test_email' => '',
+        ], $smtp);
 
-        // Pasamos a la vista solo lo necesario
-        return view('admin.config', compact('configGeneral', 'dbTables', 'phpConfig', 'arduino', 'smtp'));
+        return view('admin.iot_dashboard', compact('configGeneral', 'arduino', 'smtp'));
     }
 
-
-    /**
-     * Guarda configuración general, Arduino y SMTP
-     */
+    /** Guarda configuración general, Arduino y SMTP */
     public function save(Request $request)
     {
-        // Config General
-        $general = $request->input('general', []);
-        foreach ($general as $key => $value) {
+        $request->validate([
+            'smtp.user' => 'required|email',
+            'smtp.pass' => 'required|string',
+            'smtp.host' => 'required|string',
+            'smtp.port' => 'required|numeric',
+            'smtp.test_email' => 'required|email',
+        ]);
+
+        foreach ($request->input('general', []) as $key => $value) {
             DB::table('config')->updateOrInsert(
-                ['key' => $key, 'section' => 'general'],
+                ['section' => 'general', 'key' => $key],
                 ['value' => $value]
             );
         }
 
-        // Config Arduino
-        $arduino = $request->input('arduino', []);
-        foreach ($arduino as $key => $value) {
+        foreach ($request->input('arduino', []) as $key => $value) {
             DB::table('config')->updateOrInsert(
-                ['key' => $key, 'section' => 'arduino'],
+                ['section' => 'arduino', 'key' => $key],
                 ['value' => $value]
             );
         }
 
-        // Config SMTP
-        $smtp = $request->input('smtp', []);
-        foreach ($smtp as $key => $value) {
+        foreach ($request->input('smtp', []) as $key => $value) {
             DB::table('config')->updateOrInsert(
-                ['key' => $key, 'section' => 'smtp'],
+                ['section' => 'smtp', 'key' => $key],
                 ['value' => $value]
             );
         }
 
-        return redirect()->route('admin.config')->with('success', 'Configuración guardada correctamente.');
+        return redirect()->route('admin.iot')->with('success', 'Configuración IoT guardada correctamente.');
     }
 
-    /**
-     * Test de conexión a la base de datos
-     */
-    public function testDB()
+    /** Cambiar método de envío IoT (correo de .env o configurado) */
+    public function toggleMailMethod(Request $request)
     {
-        try {
-            DB::connection()->getPdo();
-            return response()->json(['message' => '✅ Conexión a base de datos exitosa']);
-        } catch (\Exception $e) {
-            return response()->json(['message' => '❌ Error al conectar a la base de datos: ' . $e->getMessage()]);
-        }
+        $mode = $request->input('mode', 'no'); // 'yes' = usar configurado, 'no' = usar .env
+
+        DB::table('config')->updateOrInsert(
+            ['section' => 'arduino', 'key' => 'use_custom_mail'],
+            ['value' => $mode]
+        );
+
+        return back()->with('success', 'Método de correo actualizado.');
     }
 
-    /**
-     * Enviar alerta de prueba de Arduino al correo configurado
-     */
+    /** Enviar correo de prueba desde Arduino / IoT */
     public function testArduinoMail(Request $request)
     {
         $email = $request->input('email');
@@ -132,29 +102,95 @@ class AdminController extends Controller
 
         $arduinoConfig = DB::table('config')->where('section', 'arduino')->pluck('value', 'key')->toArray();
         $smtpConfig = DB::table('config')->where('section', 'smtp')->pluck('value', 'key')->toArray();
+        $useCustom = $arduinoConfig['use_custom_mail'] ?? 'no';
 
-        // Configuración temporal de mail
-        config([
-            'mail.mailers.smtp.host' => $smtpConfig['host'] ?? env('MAIL_HOST'),
-            'mail.mailers.smtp.port' => $smtpConfig['port'] ?? env('MAIL_PORT'),
-            'mail.mailers.smtp.username' => $smtpConfig['user'] ?? env('MAIL_USERNAME'),
-            'mail.mailers.smtp.password' => $smtpConfig['pass'] ?? env('MAIL_PASSWORD'),
-            'mail.mailers.smtp.encryption' => 'tls',
-            'mail.from.address' => $smtpConfig['user'] ?? env('MAIL_FROM_ADDRESS'),
-            'mail.from.name' => 'BioTrack Alerta',
-        ]);
+        if ($useCustom === 'yes') {
+            config([
+                'mail.mailers.smtp.transport' => 'smtp',
+                'mail.mailers.smtp.host' => $smtpConfig['host'] ?? 'smtp.gmail.com',
+                'mail.mailers.smtp.port' => $smtpConfig['port'] ?? 465,
+                'mail.mailers.smtp.username' => $smtpConfig['user'] ?? env('MAIL_USERNAME'),
+                'mail.mailers.smtp.password' => $smtpConfig['pass'] ?? env('MAIL_PASSWORD'),
+                'mail.mailers.smtp.encryption' => $smtpConfig['encryption'] ?? 'ssl',
+                'mail.from.address' => $smtpConfig['user'] ?? env('MAIL_FROM_ADDRESS'),
+                'mail.from.name' => 'BioTrack Alerta',
+            ]);
+        }
 
         try {
             Mail::raw(
-                "ALERTA DE PRUEBA: Se detectó un animal hostil (simulado). Umbral: {$arduinoConfig['distance_threshold']} cm",
+                "✅ Correo de prueba enviado desde BioTrack.\n\nModo actual: " . ($useCustom === 'yes' ? 'Correo configurado manualmente' : 'Correo por defecto (.env)') .
+                "\n\nUmbral actual: " . ($arduinoConfig['distance_threshold'] ?? '50') . " cm",
                 function ($message) use ($email) {
-                    $message->to($email)
-                        ->subject('Alerta Arduino - BioTrack');
+                    $message->to($email)->subject('Prueba de Alerta - BioTrack');
                 }
             );
-            return response()->json(['message' => "✅ Alerta de prueba enviada a $email"]);
+            return response()->json(['message' => "✅ Correo de prueba enviado a $email"]);
         } catch (\Exception $e) {
             return response()->json(['message' => '❌ Error enviando correo: ' . $e->getMessage()], 500);
         }
+    }
+
+    /** Endpoint JSON para Python (Arduino) */
+    public function apiArduinoConfig()
+    {
+        $arduino = DB::table('config')->where('section', 'arduino')->pluck('value', 'key')->toArray();
+        $smtp = DB::table('config')->where('section', 'smtp')->pluck('value', 'key')->toArray();
+
+        return response()->json(array_merge($arduino, ['smtp' => $smtp]));
+    }
+
+    /** Vista flujo de correo / alertas */
+    public function flujoCorreo()
+    {
+        return view('admin.flujocorreo');
+    }
+
+    /** Configuración del sistema web (mantenimiento) */
+    public function config()
+    {
+        return view('admin.config');
+    }
+
+    /** Limpia cachés de configuración, rutas y vistas */
+    public function clearCache()
+    {
+        \Artisan::call('config:clear');
+        \Artisan::call('cache:clear');
+        \Artisan::call('route:clear');
+        \Artisan::call('view:clear');
+        return back()->with('success', '✅ Caché limpiada correctamente.');
+    }
+
+    /** Regenera APP_KEY de Laravel */
+    public function regenerateKey()
+    {
+        \Artisan::call('key:generate', ['--force' => true]);
+        return back()->with('success', '🔑 APP_KEY regenerada exitosamente.');
+    }
+
+    /** Actualiza el Service Worker manualmente (si aplica) */
+    public function updateServiceWorker()
+    {
+        $path = public_path('sw.js');
+        if (file_exists($path)) {
+            file_put_contents($path, file_get_contents($path) . "\n// Actualizado " . now());
+            return back()->with('success', '⚙️ Service Worker actualizado.');
+        }
+        return back()->with('error', '❌ No se encontró el archivo sw.js');
+    }
+
+    /** Verifica estado general del sistema */
+    public function checkStatus()
+    {
+        $dbConnected = false;
+        try {
+            \DB::connection()->getPdo();
+            $dbConnected = true;
+        } catch (\Exception $e) {
+            $dbConnected = false;
+        }
+
+        return back()->with('success', $dbConnected ? '✅ Base de datos conectada correctamente.' : '⚠️ Error de conexión a la base de datos.');
     }
 }

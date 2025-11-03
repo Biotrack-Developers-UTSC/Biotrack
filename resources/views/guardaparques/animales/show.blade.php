@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.dashboard')
 @section('title', $animal->nombre_comun)
 
 @section('content')
@@ -92,6 +91,6 @@
                     .addTo(map)
                     .bindPopup("<b>{{ $animal->nombre_comun }}</b><br>{{ $animal->habitat }}");
             @endif
-                    });
+                        });
     </script>
 @endsection

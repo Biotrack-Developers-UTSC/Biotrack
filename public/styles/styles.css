@@ -1,10 +1,4 @@
-/*
- * Archivo: public/styles/style.css
- * Hoja de Estilos Unificada para la Home Page (index.blade.php).
- * Incluye estilos base y el diseño visual de BioTrack.
- */
-
-/* ===== Estilos generales ===== */
+/* ===== BASE GENERAL ===== */
 * {
     margin: 0;
     padding: 0;
@@ -13,23 +7,22 @@
 }
 
 body {
-    background: #f8fafc;
-    /* Fondo base muy claro */
-    color: #2e3d34;
+    background: #f7faf8;
+    color: #2f4f3e;
     line-height: 1.6;
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 .header {
     background: rgba(255, 255, 255, 0.95);
-    /* Blanco semi-transparente */
     color: #1d3a2e;
     padding: 15px 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: fixed;
     width: 100%;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
 }
 
 .header-container {
@@ -42,10 +35,9 @@ body {
 }
 
 .header h1 {
-    font-size: 1.8rem;
+    font-size: 1.9rem;
     font-weight: 800;
     color: #37936B;
-    /* Color principal de BioTrack */
 }
 
 .nav-links {
@@ -56,69 +48,35 @@ body {
 
 .nav-links a {
     text-decoration: none;
-    color: #4b6456;
+    color: #455c4d;
     font-weight: 500;
-    transition: color 0.3s ease;
-    padding: 5px 0;
+    transition: 0.3s;
 }
 
 .nav-links a:hover {
     color: #37936B;
 }
 
-/* Botones de Autenticación */
-.btn-login,
-.btn-dashboard,
-.btn-logout {
-    background: #37936B;
-    color: white;
-    padding: 8px 18px;
-    border-radius: 20px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(55, 147, 107, 0.3);
-    cursor: pointer;
-    border: none;
-    font-size: 0.9rem;
-}
-
-.btn-logout {
-    background: none;
-    color: #dc2626;
-    /* Rojo para cerrar sesión */
-    box-shadow: none;
-}
-
-.btn-logout:hover {
-    text-decoration: underline;
-}
-
-/* ===== HERO SECTION (Imagen de Fondo) ===== */
+/* ===== HERO ===== */
 .hero {
-    text-align: center;
     position: relative;
-    z-index: 1;
+    text-align: center;
     padding: 150px 20px 80px;
     min-height: 550px;
     color: white;
 }
 
 .hero--visual {
-    /* 🌟 IMAGEN SIN COPYRIGHT (Placeholder URL) 🌟 */
-    background: url('https://placehold.co/1920x600/37936B/ffffff?text=BioTrack+Monitoring+Background') no-repeat center center/cover;
+    background: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
 }
 
 .hero-visual-overlay {
-    content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(46, 61, 52, 0.65);
-    /* Capa oscura BioTrack */
-    z-index: 2;
+    background: rgba(34, 56, 45, 0.65);
 }
 
 .hero-content {
@@ -130,56 +88,52 @@ body {
 }
 
 .hero-title {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
+    font-size: 3.4rem;
     font-weight: 800;
+    margin-bottom: 20px;
+    animation: fadeInDown 1.2s ease;
 }
 
 .hero-subtitle {
     font-size: 1.2rem;
     margin-bottom: 40px;
+    animation: fadeInUp 1.2s ease;
 }
 
-/* Botones del Hero */
+/* ===== HERO BOTONES ===== */
 .hero-btn {
     display: inline-block;
     padding: 12px 35px;
     border-radius: 30px;
     font-weight: 600;
-    text-transform: uppercase;
-    transition: background 0.3s, transform 0.2s;
+    transition: all 0.3s;
     text-decoration: none;
     margin: 0 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .hero-btn--primary {
     background: #FFD700;
-    /* Dorado para destacar */
     color: #1d3a2e;
 }
 
 .hero-btn--primary:hover {
-    background: #E5C100;
-    transform: translateY(-2px);
+    background: #e5c100;
+    transform: translateY(-3px);
 }
 
 .hero-btn--secondary {
-    background: none;
-    color: white;
     border: 2px solid white;
+    color: white;
 }
 
 .hero-btn--secondary:hover {
     background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 }
 
-
-/* ===== STATS GRID ===== */
+/* ===== ESTADÍSTICAS ===== */
 .stats-grid-wrapper {
-    margin-top: -60px;
-    /* Eleva la sección sobre el hero */
+    margin-top: -50px;
     position: relative;
     z-index: 10;
 }
@@ -187,24 +141,21 @@ body {
 .stats-grid {
     display: flex;
     justify-content: space-around;
-    align-items: center;
-    max-width: 900px;
-    margin: 0 auto;
-    border-radius: 15px;
+    flex-wrap: wrap;
+    gap: 20px;
     background: white;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    padding: 20px;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card {
     text-align: center;
-    padding: 15px;
+    min-width: 150px;
 }
 
 .stat-icon {
-    font-size: 2.5rem;
-    display: block;
-    margin-bottom: 5px;
+    font-size: 2.3rem;
 }
 
 .stat-number {
@@ -214,126 +165,165 @@ body {
 }
 
 .stat-label {
-    font-size: 0.9rem;
-    color: #4b6456;
+    color: #666;
 }
 
-/* ===== Main Content ===== */
+/* ===== SECCIONES ===== */
 .main-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 60px 20px;
 }
 
 .section-title {
     text-align: center;
-    margin-bottom: 50px;
-    color: #2f4f3e;
     font-size: 2rem;
-    font-weight: 700;
+    color: #2f4f3e;
+    margin-bottom: 40px;
+    position: relative;
 }
 
-/* ===== User Cards (Soluciones) ===== */
+.section-title::after {
+    content: "";
+    display: block;
+    width: 70px;
+    height: 4px;
+    background: #37936B;
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+/* ===== INTRO SECCIÓN ===== */
+.intro-text {
+    max-width: 850px;
+    margin: 0 auto 60px;
+    text-align: center;
+    color: #495f52;
+    font-size: 1.1rem;
+}
+
+/* ===== USER CARDS ===== */
 .user-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
-    margin-bottom: 60px;
 }
 
 .user-card {
-    background: #ffffff;
+    background: white;
     border-radius: 15px;
     padding: 30px;
+    border-top: 6px solid #37936B;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease;
-    border-top: 5px solid #37936B;
 }
 
 .user-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
 }
 
 .user-card h3 {
     color: #37936B;
     margin-bottom: 15px;
-    font-size: 1.4rem;
-    font-weight: 600;
+}
+
+.user-card ul {
+    list-style: none;
 }
 
 .user-card li {
     margin-bottom: 10px;
-    padding-left: 25px;
-    position: relative;
     color: #4b6456;
 }
 
 .user-card li::before {
-    content: "✓";
-    position: absolute;
-    left: 0;
+    content: "✓ ";
     color: #86cfa3;
-    font-weight: bold;
 }
 
-/* ===== About Section ===== */
+/* ===== ABOUT ===== */
 .about-section {
-    background: #ffffff;
+    background: #fff;
     border-radius: 15px;
     padding: 40px;
+    margin-top: 60px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .about-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
+    gap: 25px;
 }
 
 .about-item h3 {
     color: #2f4f3e;
-    margin-bottom: 15px;
-    font-size: 1.3rem;
-    font-weight: 600;
+    margin-bottom: 10px;
 }
 
-
-/* ===== Footer ===== */
+/* ===== FOOTER ===== */
 .footer {
-    text-align: center;
-    padding: 25px;
     background: #1d3a2e;
     color: #c8e6c9;
+    text-align: center;
+    padding: 25px;
     margin-top: 40px;
 }
 
-
-/* ===== Responsive ===== */
-@media (max-width: 900px) {
-    .header-container {
-        flex-direction: column;
-        text-align: center;
-        gap: 15px;
+/* ===== ANIMACIONES ===== */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
     }
 
-    .header {
-        position: relative;
-        /* Desactiva fixed en móvil para mejor uso */
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
 
-    .hero-title {
-        font-size: 2.5rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    .stats-grid {
-        flex-direction: column;
-        gap: 0;
-        box-shadow: none;
-        border-radius: 0;
-    }
+/* === 🔔 Banner de conexión/desconexión === */
+.connection-banner {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
 
-    .stat-card {
-        width: 100%;
-        border-bottom: 1px solid #e2e8f0;
-    }
+.connection-banner.online {
+    background-color: #10b981;
+    /* Verde */
+    color: #ffffff;
+}
+
+.connection-banner.offline {
+    background-color: #f59e0b;
+    /* Amarillo */
+    color: #1f2937;
+}
+
+.connection-banner.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
 }

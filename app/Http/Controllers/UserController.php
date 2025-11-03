@@ -38,6 +38,32 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+    public function consultaUsuarios(Request $request)
+    {
+        $query = User::query();
+
+        if ($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->paginate(10);
+
+        return view('consultas.usuarios', compact('users'));
+    }
+
+
     /**
      * Muestra el formulario de creación.
      */

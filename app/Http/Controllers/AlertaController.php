@@ -6,24 +6,24 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Alerta;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AlertaMail;
 use Illuminate\Validation\Rule;
 
 class AlertaController extends Controller
 {
-    /** Muestra la tabla CRUD de alertas. (GET /alertas) */
     public function index(): View
     {
         $alertas = Alerta::orderBy('created_at', 'desc')->paginate(15);
         return view('guardaparques.alertas.index', compact('alertas'));
     }
 
-    /** Muestra el formulario de creación. (GET /alertas/create) */
     public function create(): View
     {
         return view('guardaparques.alertas.create');
     }
 
-    /** Almacena una nueva alerta. (POST /alertas) */
     public function store(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
@@ -34,26 +34,25 @@ class AlertaController extends Controller
             'sensor_id' => 'nullable|string|max:255',
             'ubicacion' => 'nullable|string|max:255',
             'estado' => ['required', Rule::in(['Nueva', 'En Proceso', 'Resuelta'])],
+            'tipo' => ['nullable', Rule::in(['hostil', 'no hostil'])],
         ]);
 
+        $validatedData['enviado'] = false; // predeterminado
         Alerta::create($validatedData);
 
         return redirect()->route('alertas.index')->with('success', 'Alerta registrada con éxito.');
     }
 
-    /** Muestra una alerta específica. (GET /alertas/{alerta}) */
     public function show(Alerta $alerta): View
     {
         return view('guardaparques.alertas.show', compact('alerta'));
     }
 
-    /** Muestra el formulario de edición. (GET /alertas/{alerta}/edit) */
     public function edit(Alerta $alerta): View
     {
         return view('guardaparques.alertas.edit', compact('alerta'));
     }
 
-    /** Actualiza el recurso. (PUT/PATCH /alertas/{alerta}) */
     public function update(Request $request, Alerta $alerta): RedirectResponse
     {
         $validatedData = $request->validate([
@@ -64,6 +63,7 @@ class AlertaController extends Controller
             'sensor_id' => 'nullable|string|max:255',
             'ubicacion' => 'nullable|string|max:255',
             'estado' => ['required', Rule::in(['Nueva', 'En Proceso', 'Resuelta'])],
+            'tipo' => ['nullable', Rule::in(['hostil', 'no hostil'])],
         ]);
 
         $alerta->update($validatedData);
@@ -71,10 +71,25 @@ class AlertaController extends Controller
         return redirect()->route('alertas.index')->with('success', 'Alerta actualizada.');
     }
 
-    /** Elimina el recurso. (DELETE /alertas/{alerta}) */
     public function destroy(Alerta $alerta): RedirectResponse
     {
         $alerta->delete();
         return redirect()->route('alertas.index')->with('success', 'Alerta eliminada.');
+    }
+
+    /** Método para enviar correo manual de alerta */
+    public function send(Alerta $alerta): RedirectResponse
+    {
+        if (!$alerta->enviado) {
+            // Enviar correo a todos los guardaparques
+            $guardaparques = User::where('role', 'guardaparque')->get();
+            foreach ($guardaparques as $g) {
+                Mail::to($g->email)->send(new AlertaMail($alerta));
+            }
+            $alerta->enviado = true;
+            $alerta->save();
+        }
+
+        return back()->with('success', 'Correo enviado a guardaparques');
     }
 }

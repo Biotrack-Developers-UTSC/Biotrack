@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 @section('title', 'Catálogo de Especies')
 
 @section('content')
@@ -69,21 +69,24 @@
                         @forelse($animales as $animal)
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="px-4 py-3 font-medium text-gray-900">{{ $animal->id }}</td>
+                                {{-- 🧾 Código QR --}}
                                 <td class="px-4 py-3 text-center">
                                     @if ($animal->codigo_qr)
-                                        <img src="{{ asset('storage/' . $animal->codigo_qr) }}"
-                                            class="w-24 h-24 object-contain mx-auto rounded-md shadow">
+                                        <img src="{{ asset($animal->codigo_qr) }}" alt="QR {{ $animal->nombre_comun }}"
+                                            class="w-24 h-24 mx-auto object-contain rounded-md shadow">
                                     @else
                                         <span class="text-gray-400 text-sm">Sin QR</span>
                                     @endif
                                 </td>
+
+                                {{-- 🖼️ Imagen del animal --}}
                                 <td class="px-4 py-3 text-center">
                                     @if ($animal->imagen_path)
-                                        <img src="{{ asset('storage/' . $animal->imagen_path) }}"
-                                            class="w-24 h-24 object-cover mx-auto rounded-lg shadow">
+                                        <img src="{{ asset($animal->imagen_path) }}" alt="Imagen de {{ $animal->nombre_comun }}"
+                                            class="w-20 h-20 object-cover rounded-lg shadow mx-auto">
                                     @else
                                         <div
-                                            class="w-24 h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs rounded-lg mx-auto">
+                                            class="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-lg text-gray-400 text-xs mx-auto">
                                             Sin imagen
                                         </div>
                                     @endif

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 @section('title', 'Ficha Pública - ' . $animal->nombre_comun)
 
 @section('content')
@@ -41,28 +41,30 @@
                     <p class="mt-3 text-gray-700"><strong>Descripción:</strong></p>
                     <p class="text-gray-700 mb-4">{{ $animal->descripcion }}</p>
 
-                    {{-- ✅ Código QR debajo de la descripción --}}
-                    <div class="mt-6">
+                    {{-- Código QR debajo de la descripción --}}
+                    <div class="mt-6 flex flex-col items-center">
                         <h2 class="text-lg font-semibold text-gray-800 mb-2">Código QR</h2>
                         @if ($animal->codigo_qr)
-                            <img src="{{ asset($animal->codigo_qr) }}" alt="Código QR" class="w-40 rounded-lg shadow-md">
+                            <img src="{{ asset($animal->codigo_qr) }}" alt="Código QR"
+                                class="w-40 h-40 rounded-lg shadow-md object-contain">
                         @else
                             <p class="text-gray-500">No hay QR generado.</p>
                         @endif
                     </div>
 
-                    {{-- ✅ Imagen debajo del QR --}}
+                    {{-- Imagen debajo del QR --}}
                     <div class="mt-6">
                         <h2 class="text-lg font-semibold text-gray-800 mb-2">Imagen del animal</h2>
                         @if ($animal->imagen_path)
                             <img src="{{ asset($animal->imagen_path) }}" alt="Imagen del animal"
-                                class="rounded-lg shadow-md w-full">
+                                class="rounded-lg shadow-md w-full object-cover">
                         @else
                             <div class="bg-gray-100 rounded-lg h-56 flex items-center justify-center text-gray-500">
                                 Sin imagen disponible
                             </div>
                         @endif
                     </div>
+
                 </div>
             </div>
 
@@ -97,6 +99,6 @@
                     .addTo(map)
                     .bindPopup("<b>{{ $animal->nombre_comun }}</b><br>{{ $animal->habitat }}");
             @endif
-                                });
+                                        });
     </script>
 @endsection

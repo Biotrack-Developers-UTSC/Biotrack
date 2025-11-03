@@ -25,6 +25,8 @@ return new class extends Migration {
             $table->string('ubicacion')->nullable(); // Ej: Coordenadas, Zona A
 
             $table->enum('estado', ['Nueva', 'En Proceso', 'Resuelta'])->default('Nueva');
+            $table->enum('tipo', ['hostil', 'pacifico'])->default('hostil');
+            $table->boolean('enviado')->default(false);
 
             $table->timestamps(); // Registra cuándo fue creada y actualizada en el sistema
         });

@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.dashboard')
 @section('title', 'Gestión de Especies')
 
 @section('content')

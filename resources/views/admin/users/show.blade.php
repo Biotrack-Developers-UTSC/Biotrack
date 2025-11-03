@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 @section('title', 'Detalles de Usuario: ' . $usuario->name)
 
 @section('content')

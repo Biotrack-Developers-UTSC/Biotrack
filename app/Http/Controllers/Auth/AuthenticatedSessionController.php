@@ -32,11 +32,10 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            // Redirigir a la ubicación HOME (/welcome)
-            return redirect()->intended(AppServiceProvider::HOME);
+            // Redirigir al "welcome" que ahora actúa como dashboard dinámico
+            return redirect()->route('welcome');
         }
 
-        // Si falla, redirigir de vuelta con error
         return back()->withErrors([
             'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
         ])->onlyInput('email');
@@ -50,7 +49,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sin Conexión | BioTrack</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+    <style>
+        body {
+            text-align: center;
+            background: #f0fdf4;
+            color: #1d3a2e;
+            font-family: "Poppins", sans-serif;
+            padding: 80px 20px;
+        }
+
+        .icon {
+            font-size: 60px;
+            color: #37936B;
+            margin-bottom: 20px;
+        }
+
+        .btn-retry {
+            margin-top: 25px;
+            background: #37936B;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-retry:hover {
+            background: #2e7b59;
+        }
+    </style>
+</head>
+
+<body>
+    <i class="fas fa-wifi-slash icon"></i>
+    <h1>Estás sin conexión</h1>
+    <p>Puedes seguir explorando el contenido básico de BioTrack.</p>
+    <p>Cuando recuperes internet, la aplicación se sincronizará automáticamente.</p>
+    <button class="btn-retry" onclick="location.reload()">Reintentar</button>
+</body>
+
+</html>

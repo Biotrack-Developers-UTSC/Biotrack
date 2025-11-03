@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 @section('title', 'Gestión de Usuarios y Roles')
 
 @section('content')

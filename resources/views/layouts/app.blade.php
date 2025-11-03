@@ -9,12 +9,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <link rel="stylesheet" href="{{ asset('styles/dashboard.css') }}">
-    @yield('styles') {{-- Soporte para estilos adicionales --}}
+    <link rel="stylesheet" href="{{ asset('styles/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/dashboard_roles.css') }}">
+    @yield('styles')
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Registro del Service Worker --}}
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -25,9 +25,11 @@
     </script>
 </head>
 
-<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen
+      @if(Auth::check() && Auth::user()->role === 'admin') admin-theme
+      @elseif(Auth::check() && Auth::user()->role === 'guardaparque') guardaparque-theme @endif">
 
-    {{-- 🌟 HEADER UNIFICADO Y DINÁMICO 🌟 --}}
+    {{-- HEADER --}}
     <header class="bg-white shadow-lg border-b-4 border-green-500 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
@@ -35,14 +37,11 @@
                     <h1 class="text-2xl font-bold text-gray-800">BioTrack</h1>
                 </div>
 
-                {{-- NAVEGACIÓN DINÁMICA POR ROL (Utiliza la lógica JS showSection) --}}
                 <nav class="nav-links hidden md:flex space-x-6">
-                    {{-- Usaremos el enlace 'welcome' para la navegación principal --}}
                     <a href="{{ route('welcome') }}" class="nav-btn text-gray-600 hover:text-green-600">Volver a
-                        Roles</a>
+                        Centro de control</a>
 
                     @auth
-                        {{-- Botones de Pestaña del Dashboard (Guardaparque/Admin) --}}
                         <button onclick="showSection('dashboard-general', this)"
                             class="nav-btn text-green-600 font-semibold border-b-2 border-green-600">Dashboard</button>
 
@@ -63,7 +62,6 @@
                     @endauth
                 </nav>
 
-                {{-- INFO DE USUARIO Y LOGOUT --}}
                 <div class="flex items-center space-x-4">
                     @auth
                         <span class="text-gray-800 font-medium" id="usuario">
@@ -86,17 +84,14 @@
         @yield('content')
     </main>
 
-    {{-- LÓGICA JAVASCRIPT DE PESTAÑAS (Debe estar aquí) --}}
     <script>
-        // Debes pegar la implementación completa de showSection aquí si la estás usando
         function showSection(sectionName, clickedButton) {
-            // Ejemplo de implementación de showSection para evitar errores de referencia si esta página se usa
             console.log(`Cambiando a la sección: ${sectionName}`);
-            // Lógica completa de visibilidad de pestañas
+            // Lógica de visibilidad de pestañas aquí
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Lógica de inicialización del dashboard
+            // Inicialización dashboard
         });
     </script>
 </body>

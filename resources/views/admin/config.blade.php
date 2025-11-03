@@ -1,128 +1,96 @@
-@extends('layouts.app')
-@section('title', 'Configuración del Sistema | BioTrack')
+@extends('layouts.dashboard')
+@section('title', 'Mantenimiento del Sistema | BioTrack')
+
 @section('content')
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-4xl font-extrabold text-red-700 mb-10">⚙️ Mantenimiento del Sistema</h1>
 
-    <h1 class="text-4xl font-extrabold text-red-700 mb-8">Configuración Avanzada del Sistema</h1>
+        {{-- 📊 Estadísticas del sistema --}}
+        @include('partials.dashboard_stats')
 
-    {{-- Mensajes flash --}}
-    @if(session('success'))
-        <div class="bg-green-100 text-green-800 px-4 py-3 rounded mb-6 shadow">
-            {{ session('success') }}
+        @if(session('success'))
+            <div class="bg-green-100 text-green-800 px-4 py-3 rounded mb-6 shadow">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="bg-red-100 text-red-800 px-4 py-3 rounded mb-6 shadow">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <div class="grid md:grid-cols-2 gap-6">
+
+            {{-- Limpiar cachés --}}
+            <form action="{{ route('admin.system.clearCache') }}" method="POST" class="bg-white rounded-xl shadow p-6">
+                @csrf
+                <h2 class="text-2xl font-bold text-red-600 mb-3">🧹 Limpiar Caché</h2>
+                <p class="text-gray-600 mb-4">Elimina cachés de configuración, rutas y vistas para resolver errores de
+                    almacenamiento temporal.</p>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Limpiar
+                    Caché</button>
+            </form>
+
+            {{-- Regenerar APP_KEY --}}
+            <form action="{{ route('admin.system.regenerateKey') }}" method="POST" class="bg-white rounded-xl shadow p-6">
+                @csrf
+                <h2 class="text-2xl font-bold text-red-600 mb-3">🔑 Regenerar APP_KEY</h2>
+                <p class="text-gray-600 mb-4">Genera una nueva clave de aplicación para reforzar la seguridad.
+                    <strong>⚠️ Solo si es realmente necesario.</strong>
+                </p>
+                <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">Regenerar
+                    APP_KEY</button>
+            </form>
+
+            {{-- Actualizar Service Worker --}}
+            <form action="{{ route('admin.system.updateSW') }}" method="POST" class="bg-white rounded-xl shadow p-6">
+                @csrf
+                <h2 class="text-2xl font-bold text-red-600 mb-3">📦 Actualizar Service Worker</h2>
+                <p class="text-gray-600 mb-4">Recarga manualmente el archivo <code>sw.js</code> para forzar una nueva
+                    versión de caché PWA.</p>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Actualizar
+                    SW</button>
+            </form>
+
+            {{-- Comprobar estado del sistema --}}
+            <form action="{{ route('admin.system.checkStatus') }}" method="POST" class="bg-white rounded-xl shadow p-6">
+                @csrf
+                <h2 class="text-2xl font-bold text-red-600 mb-3">🩺 Comprobar Estado del Sistema</h2>
+                <p class="text-gray-600 mb-4">Verifica la conexión actual con la base de datos y el entorno de Laravel.</p>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Verificar
+                    Estado</button>
+            </form>
         </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-100 text-red-800 px-4 py-3 rounded mb-6 shadow">
-            {{ session('error') }}
+
+        {{-- Información del entorno --}}
+        <div class="mt-12 bg-white rounded-xl shadow p-6">
+            <h2 class="text-2xl font-bold text-red-600 mb-4">💻 Información del Entorno</h2>
+
+            <div class="grid md:grid-cols-2 gap-4 text-gray-700 text-sm">
+                <p><strong>Laravel:</strong> {{ app()->version() }}</p>
+                <p><strong>PHP:</strong> {{ PHP_VERSION }}</p>
+                <p><strong>APP_ENV:</strong> {{ env('APP_ENV') }}</p>
+                <p><strong>APP_DEBUG:</strong> {{ env('APP_DEBUG') ? 'true' : 'false' }}</p>
+                <p><strong>APP_URL:</strong> {{ env('APP_URL') }}</p>
+                <p><strong>Servidor:</strong> {{ php_uname('s') }} ({{ php_uname('r') }})</p>
+                <p><strong>Hora del servidor:</strong> {{ now()->format('Y-m-d H:i:s') }}</p>
+                <p><strong>Base de datos:</strong>
+                    @php
+                        try {
+                            DB::connection()->getPdo();
+                            echo '✅ Conectada';
+                        } catch (Exception $e) {
+                            echo '❌ Error de conexión';
+                        }
+                    @endphp
+                </p>
+            </div>
         </div>
-    @endif
 
-    {{-- SECCIÓN 1: Configuración General --}}
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold text-red-600 mb-4">🔧 Configuración General</h2>
-        <form action="{{ route('admin.config.save') }}" method="POST">
-            @csrf
-            @foreach($configGeneral as $key => $value)
-                <div class="mb-4">
-                    <label class="block font-medium text-gray-800 mb-1">{{ $key }}</label>
-                    <input type="text" name="general[{{ $key }}]" value="{{ $value ?? '' }}"
-                           class="w-full border p-2 rounded" required>
-                </div>
-            @endforeach
-            <button type="submit"
-                    class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow">
-                Guardar Cambios
-            </button>
-        </form>
+        <div class="mt-10 text-sm text-gray-500">
+            <p>🧠 <strong>Consejo:</strong> Usa este panel solo cuando debas solucionar problemas técnicos o mantenimiento
+                general del sistema web.</p>
+        </div>
     </div>
-
-    {{-- SECCIÓN 2: Alertas Arduino --}}
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold text-red-600 mb-4">🤖 Alertas Arduino</h2>
-        <form action="{{ route('admin.config.save') }}" method="POST">
-            @csrf
-            <div class="mb-4">
-                <label class="block font-medium text-gray-800 mb-1">Activar alertas Arduino</label>
-                <select name="arduino[active]" class="w-full border p-2 rounded">
-                    <option value="1" {{ ($arduino['active'] ?? 1) == 1 ? 'selected' : '' }}>Sí</option>
-                    <option value="0" {{ ($arduino['active'] ?? 1) == 0 ? 'selected' : '' }}>No</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label class="block font-medium text-gray-800 mb-1">Umbral distancia (cm)</label>
-                <input type="number" name="arduino[distance_threshold]" value="{{ $arduino['distance_threshold'] ?? 50 }}"
-                       class="w-full border p-2 rounded" required>
-            </div>
-            <div class="mb-4">
-                <label class="block font-medium text-gray-800 mb-1">Correo de prueba</label>
-                <input type="email" name="arduino[test_email]" value="{{ $arduino['test_email'] ?? '' }}"
-                       class="w-full border p-2 rounded" placeholder="correo@ejemplo.com">
-            </div>
-            <div class="flex space-x-2">
-                <button type="submit"
-                        class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow">
-                    Guardar Configuración Arduino
-                </button>
-                <button type="button" onclick="sendTestArduinoEmail()"
-                        class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow">
-                    Enviar alerta de prueba
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- SECCIÓN 3: Correo SMTP --}}
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold text-red-600 mb-4">✉️ Configuración de Correo SMTP</h2>
-        <form action="{{ route('admin.config.save') }}" method="POST">
-            @csrf
-            <div class="mb-4">
-                <label class="block font-medium text-gray-800 mb-1">Servidor SMTP</label>
-                <input type="text" name="smtp[host]" value="{{ $smtp['host'] ?? '' }}"
-                       class="w-full border p-2 rounded" placeholder="smtp.ejemplo.com" required>
-            </div>
-            <div class="mb-4">
-                <label class="block font-medium text-gray-800 mb-1">Puerto</label>
-                <input type="number" name="smtp[port]" value="{{ $smtp['port'] ?? 587 }}"
-                       class="w-full border p-2 rounded" required>
-            </div>
-            <div class="mb-4">
-                <label class="block font-medium text-gray-800 mb-1">Usuario</label>
-                <input type="email" name="smtp[user]" value="{{ $smtp['user'] ?? '' }}"
-                       class="w-full border p-2 rounded" required>
-            </div>
-            <div class="mb-4">
-                <label class="block font-medium text-gray-800 mb-1">Contraseña</label>
-                <input type="password" name="smtp[pass]" value="{{ $smtp['pass'] ?? '' }}"
-                       class="w-full border p-2 rounded" required>
-            </div>
-            <button type="submit"
-                    class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow">
-                Guardar Configuración SMTP
-            </button>
-        </form>
-    </div>
-
-</div>
-
-<script>
-    function sendTestArduinoEmail() {
-        const email = document.querySelector('input[name="arduino[test_email]"]').value;
-        if (!email) {
-            alert('Ingresa un correo de prueba.');
-            return;
-        }
-
-        fetch("{{ route('admin.arduino.testmail') }}", {
-            method: 'POST',
-            headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json'},
-            body: JSON.stringify({email: email})
-        })
-        .then(res => res.json())
-        .then(data => alert(data.message))
-        .catch(err => alert('Error enviando alerta de prueba'));
-    }
-</script>
-
 @endsection

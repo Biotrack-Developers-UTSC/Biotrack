@@ -3,19 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Animal;
+use App\Models\Alerta;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    /**
-     * Muestra la página de bienvenida única (/welcome) y adapta la vista.
-     */
-    public function index(): View
+    public function index()
     {
         $user = Auth::user();
 
-        // Renombramos la vista a 'welcome'
-        return view('welcome', compact('user'));
+        // Datos dinámicos para las tarjetas de estadísticas
+        $stats = [
+            'usuarios' => User::count(),
+            'especies' => Animal::count(),
+            'alertas' => Alerta::where('estado', 'Nueva')->count(),
+        ];
+
+        return view('welcome', compact('user', 'stats'));
     }
 }

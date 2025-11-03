@@ -9,18 +9,17 @@ class Alerta extends Model
 {
     use HasFactory;
 
-    // Indica que no usamos timestamps automáticos si las alertas IoT proveen su propio timestamp
-    // public $timestamps = false; 
-    // 👇 Laravel por defecto buscaría "animals", lo corregimos
     protected $table = 'alertas';
 
     protected $fillable = [
         'id_alerta',
         'titulo',
         'mensaje',
-        'severidad', // Baja, Media, Alta
-        'sensor_id', // ID del dispositivo IoT o sensor que la generó
+        'severidad',
+        'sensor_id',
         'ubicacion',
-        'estado',    // Nueva, En Proceso, Resuelta
+        'estado',
+        'tipo',      // hostil / pacifico
+        'enviado',   // booleano si se envió correo
     ];
 }

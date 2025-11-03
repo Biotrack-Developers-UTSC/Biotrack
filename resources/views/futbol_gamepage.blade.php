@@ -1,5 +1,4 @@
-@extends('layouts.app_shell')
-
+@extends('layouts.game_shell')
 @section('title', 'Juego de Fútbol Godot')
 
 @section('styles')
