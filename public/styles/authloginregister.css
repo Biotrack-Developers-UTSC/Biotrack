@@ -1,6 +1,6 @@
 /*
  * Hoja de Estilos Unificada para Login y Registro
- * Ubicación: public/styles/style_auth.css
+ * Ubicación: public/styles/authloginregister.css
  * Tema: BioTrack (verde/natural)
  */
 
@@ -151,4 +151,27 @@ input:focus {
 
 .btn-secondary:hover {
     background: #eafaf1;
+}
+
+/* --- 📱 MEDIA QUERIES para Móviles --- */
+@media (max-width: 768px) {
+
+    body {
+        padding: 20px;
+    }
+
+    .auth-card {
+        padding: 25px;
+        max-width: 95%;
+    }
+
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        font-size: 0.95rem;
+        padding: 10px 18px;
+    }
 }

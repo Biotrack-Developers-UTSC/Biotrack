@@ -219,3 +219,38 @@ footer {
         gap: 15px;
     }
 }
+
+/* --- 📱 MEDIA QUERIES para Tablets y Móviles (Juego) --- */
+@media (max-width: 768px) {
+
+    header .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .hero {
+        text-align: center;
+        padding: 100px 20px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .features-grid,
+    .screenshots-grid,
+    .requirements-grid,
+    .platforms-grid {
+        grid-template-columns: 1fr;
+    }
+
+    footer {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+}
