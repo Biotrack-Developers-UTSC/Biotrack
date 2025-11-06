@@ -1,99 +1,99 @@
-import re, time, threading, smtplib, requests, serial, serial.tools.list_ports
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import base64
+import re
+import time
+import threading
+from io import BytesIO
+from PIL import Image
+import requests
+import serial
+import serial.tools.list_ports
 
-try:
-    from plyer import notification as PLYER_NOTIFICATION
-except ImportError:
-    PLYER_NOTIFICATION = None
-
-try:
-    import pyttsx3
-    TTS_ENGINE = pyttsx3.init()
-except ImportError:
-    TTS_ENGINE = None
-
-CONFIG_URL = "http://tu-dominio.test/api/arduino/config"
+# 🔧 CONFIG
 BAUDRATE = 9600
-DIST_THRESHOLD_CM = 50
-SERIAL_PORT = None
-SMTP_CONFIG = {}
-
-def fetch_config():
-    global DIST_THRESHOLD_CM, SMTP_CONFIG
-    try:
-        resp = requests.get(CONFIG_URL, timeout=5)
-        resp.raise_for_status()
-        data = resp.json()
-        DIST_THRESHOLD_CM = int(data.get('distance_threshold', DIST_THRESHOLD_CM))
-        SMTP_CONFIG.update(data.get('smtp', {}))
-        print("[CONFIG] Cargada desde Laravel.")
-    except requests.exceptions.RequestException as e:
-        print(f"[CONFIG] Error cargando config: {e}")
+LARAVEL_URL = "https://tunel-laravel.cloudflare-gateway.com/api/arduino/alerta"
+ESP32_CAM_URL = "http://192.168.4.10/capture"  # Cambia a la IP real de tu cámara
+UBICACION = "Zona de pruebas"
 
 def choose_serial_port():
     ports = list(serial.tools.list_ports.comports())
     if not ports:
-        raise RuntimeError("No se encontraron puertos serial.")
+        raise RuntimeError("No hay puertos serial disponibles.")
+    print("Puertos:")
     for i, p in enumerate(ports):
-        print(f"[{i}] {p.device} - {p.description}")
-    idx = int(input("Selecciona índice del puerto (enter 0): ") or 0)
+        print(f" [{i}] {p.device} - {p.description}")
+    idx = 0
+    if len(ports) > 1:
+        idx = int(input("Puerto (Enter=0): ") or 0)
     return ports[idx].device
 
-def show_notification(title, message):
-    if PLYER_NOTIFICATION:
-        try: PLYER_NOTIFICATION.notify(title=title, message=message, app_name="ArduinoAlert", timeout=5)
-        except Exception as e: print(f"[NOTIF] {e}")
-    else: print(f"[NOTIF] {title}: {message}")
-
-def speak(text):
-    if TTS_ENGINE:
-        threading.Thread(target=lambda: TTS_ENGINE.say(text) or TTS_ENGINE.runAndWait(), daemon=True).start()
-    else: print(f"[TTS] {text}")
-
-def send_email(subject, body):
+def capturar_foto():
     try:
-        msg = MIMEMultipart()
-        msg['From'] = SMTP_CONFIG.get('user')
-        msg['To'] = SMTP_CONFIG.get('test_email')
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'plain'))
-        with smtplib.SMTP_SSL(SMTP_CONFIG['host'], SMTP_CONFIG['port']) as server:
-            server.login(SMTP_CONFIG['user'], SMTP_CONFIG['pass'])
-            server.send_message(msg)
-        print(f"[SMTP] Correo enviado a {SMTP_CONFIG.get('test_email')}")
+        print("📸 Solicitando imagen a ESP32-CAM...")
+        r = requests.get(ESP32_CAM_URL, timeout=6)
+        if r.status_code == 200 and r.content.startswith(b'\xff\xd8'):
+            img_b64 = base64.b64encode(r.content).decode('utf-8')
+            print("✅ Imagen recibida.")
+            return img_b64
+        else:
+            print("⚠️ No se recibió imagen válida.")
     except Exception as e:
-        print(f"[SMTP] Error: {e}")
+        print("❌ Error al capturar imagen:", e)
+    return None
 
-def alerta(distancia):
-    if distancia <= DIST_THRESHOLD_CM:
-        msg = f"Alerta: Objeto a {distancia} cm (umbral {DIST_THRESHOLD_CM} cm)"
-        show_notification("Alerta Arduino", msg)
-        speak(msg)
-        send_email("Alerta Arduino", msg)
+def enviar_alerta(titulo, mensaje, severidad="Alta", tipo="hostil", incluir_foto=False):
+    data = {
+        "titulo": titulo,
+        "mensaje": mensaje,
+        "severidad": severidad,
+        "sensor_id": "ARDUINO-UNO",
+        "ubicacion": UBICACION,
+        "tipo": tipo
+    }
 
-def listen_and_alert(port):
-    print(f"Abriendo puerto {port} a {BAUDRATE} baudios...")
+    if incluir_foto:
+        imagen_base64 = capturar_foto()
+        if imagen_base64:
+            data["imagen_base64"] = imagen_base64
+
+    try:
+        r = requests.post(LARAVEL_URL, json=data, timeout=10)
+        if r.ok:
+            print("✅ Alerta enviada y guardada:", r.json().get("alerta", {}))
+        else:
+            print("⚠️ Error al enviar:", r.status_code, r.text)
+    except Exception as e:
+        print("❌ No se pudo conectar:", e)
+
+def escuchar_serial(port):
+    print(f"Escuchando puerto {port} a {BAUDRATE} baudios...")
     with serial.Serial(port, BAUDRATE, timeout=1) as ser:
         time.sleep(2)
         while True:
-            try:
-                line = ser.readline().decode(errors='ignore').strip()
-                if not line: continue
-                print(">>", line)
-                if "Movimiento detectado" in line:
-                    alerta(0)
-                    continue
-                match = re.search(r"Distancia\s*HC-?SR04\s*:\s*(\d+)", line)
-                if match: alerta(int(match.group(1)))
-            except KeyboardInterrupt:
-                print("Cerrando...")
-                break
-            except Exception as e:
-                print("Error serial:", e)
-                time.sleep(0.5)
+            line = ser.readline().decode(errors="ignore").strip()
+            if not line:
+                continue
+            print(">>", line)
+
+            if "ALERTA:ANIMAL" in line:
+                print("🚨 Detección animal/hostil")
+                enviar_alerta(
+                    titulo="Detección animal o presencia hostil",
+                    mensaje=f"El sensor detectó movimiento o distancia crítica.",
+                    severidad="Alta",
+                    tipo="hostil",
+                    incluir_foto=True
+                )
+
+            elif "PIR: Movimiento detectado" in line:
+                print("👤 Movimiento humano detectado")
+                enviar_alerta(
+                    titulo="Movimiento humano detectado",
+                    mensaje="El sensor PIR detectó actividad humana.",
+                    severidad="Media",
+                    tipo="no hostil",
+                    incluir_foto=False
+                )
 
 if __name__ == "__main__":
-    fetch_config()
-    port = SERIAL_PORT or choose_serial_port()
-    listen_and_alert(port)
+    port = choose_serial_port()
+    escuchar_serial(port)

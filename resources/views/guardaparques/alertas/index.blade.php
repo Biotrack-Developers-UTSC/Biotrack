@@ -56,6 +56,8 @@
                         <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">ID</th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Título
                         </th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Imagen
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Severidad
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-green-700 uppercase tracking-wider">Mensaje
@@ -74,6 +76,18 @@
                         <tr>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $alerta->id_alerta }}</td>
                             <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ $alerta->titulo }}</td>
+
+                            <td class="px-6 py-4 text-sm text-gray-700">
+                                @if($alerta->imagen)
+                                    <a href="{{ asset($alerta->imagen) }}" target="_blank">
+                                        <img src="{{ asset($alerta->imagen) }}"
+                                            class="w-20 h-20 object-cover rounded-lg border border-gray-300 shadow-sm">
+                                    </a>
+                                @else
+                                    <span class="text-gray-400">Sin foto</span>
+                                @endif
+                            </td>
+
                             <td class="px-6 py-4 text-sm">
                                 @php
                                     $color = match ($alerta->severidad) {
@@ -106,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-10 text-center text-gray-500 text-lg">
+                            <td colspan="9" class="px-6 py-10 text-center text-gray-500 text-lg">
                                 No hay alertas registradas.
                             </td>
                         </tr>

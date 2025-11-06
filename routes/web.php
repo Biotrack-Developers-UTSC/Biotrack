@@ -44,7 +44,7 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 */
 Route::middleware(['auth', 'verified'])->group(function () {
 
-  // Página de bienvenida unificada (dashboard)
+  // Dashboard principal
   Route::get('/welcome', [HomeController::class, 'index'])->name('welcome');
 
   // Juegos
@@ -53,42 +53,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
   // Escaneo QR
   Route::get('/qr/scanner/ui', fn() => view('qr.scanner_ui'))->name('qr.scanner.ui');
   Route::get('/scan/{qrCodeData}', [ScanController::class, 'scan'])
-    ->where('qrCodeData', '.*') // Esto permite guiones y cualquier caracter
+    ->where('qrCodeData', '.*')
     ->name('qr.scan');
 
   // Ficha pública de animales
   Route::get('/animales/ficha/{animal}', [AnimalController::class, 'ficha_publica'])->name('animales.ficha_publica');
 
-  // CRUD de animales (para guardaparques y admin)
+  // CRUD de animales
   Route::resource('animales', AnimalController::class)->parameters(['animales' => 'animal']);
   Route::get('/animales/{id}/regenerar-qr', [AnimalController::class, 'regenerarQR'])->name('animales.regenerarQR');
 
-  // Consultas (usuarios generales)
+  // 📡 CRUD de alertas (manuales o desde IoT)
+  Route::resource('alertas', AlertaController::class)->parameters(['alertas' => 'alerta']);
+  Route::post('/alertas/{alerta}/enviar', [AlertaController::class, 'send'])->name('alertas.send');
+
+  // Consultas
   Route::get('/consultas/animales', [ConsultaController::class, 'index'])->name('consultas.index');
 
   /*
   |--------------------------------------------------------------------------
-  | Guardaparques y Admin
+  | GUARDAPARQUES y ADMIN
   |--------------------------------------------------------------------------
   */
   Route::middleware(['auth', 'role:guardaparque|admin'])->group(function () {
-    // Dashboard de guardaparques (alarmas)
     Route::get('/dashboard/gestion', [GuardaparquesController::class, 'dashboard'])->name('guardaparques.dashboard');
-
-    // CRUD de alertas
-    Route::resource('alertas', AlertaController::class)->parameters(['alertas' => 'alerta']);
     Route::get('/guardaparques/alertas', [GuardaparquesController::class, 'alertas'])->name('guardaparques.alertas.index');
-
-
-    // 👇 Ruta de solo consulta de usuarios (sin permisos de edición o eliminación)
     Route::get('/consultas/usuarios', [UserController::class, 'consultaUsuarios'])->name('consultas.usuarios');
   });
 
   /*
-|-------------------------------------------------------------------------- 
-| RUTAS ADMIN
-|-------------------------------------------------------------------------- 
-*/
+  |--------------------------------------------------------------------------
+  | ADMIN
+  |--------------------------------------------------------------------------
+  */
   Route::middleware(['auth', 'role:admin'])->group(function () {
     // IoT
     Route::get('/admin/iot', [AdminController::class, 'iotDashboard'])->name('admin.iot');
@@ -99,10 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Usuarios
     Route::resource('usuarios', UserController::class)->names('administracion.usuarios');
 
-    // 📘 Documentación del flujo de correo (nuevo)
+    // Flujo de correo y mantenimiento
     Route::get('/admin/flujocorreo', [AdminController::class, 'flujoCorreo'])->name('admin.flujocorreo');
-
-    // Panel de mantenimiento del sistema
     Route::get('/admin/config', [AdminController::class, 'config'])->name('admin.config');
     Route::post('/admin/system/clear-cache', [AdminController::class, 'clearCache'])->name('admin.system.clearCache');
     Route::post('/admin/system/regenerate-key', [AdminController::class, 'regenerateKey'])->name('admin.system.regenerateKey');

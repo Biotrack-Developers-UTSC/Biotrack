@@ -21,5 +21,6 @@ class Alerta extends Model
         'estado',
         'tipo',      // hostil / pacifico
         'enviado',   // booleano si se envió correo
+        'imagen',  //detectar si es animal hostil o no
     ];
 }

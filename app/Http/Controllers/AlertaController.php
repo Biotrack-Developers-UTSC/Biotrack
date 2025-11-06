@@ -10,24 +10,34 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AlertaMail;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class AlertaController extends Controller
 {
+    /**
+     * 📋 Listado general de alertas IoT
+     */
     public function index(): View
     {
         $alertas = Alerta::orderBy('created_at', 'desc')->paginate(15);
         return view('guardaparques.alertas.index', compact('alertas'));
     }
 
+    /**
+     * 🆕 Formulario de creación manual
+     */
     public function create(): View
     {
         return view('guardaparques.alertas.create');
     }
 
+    /**
+     * 💾 Guarda una nueva alerta creada desde el panel
+     */
     public function store(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
-            'id_alerta' => 'required|string|unique:alertas,id_alerta',
+            'id_alerta' => 'nullable|string|unique:alertas,id_alerta',
             'titulo' => 'required|string|max:255',
             'mensaje' => 'required|string',
             'severidad' => ['required', Rule::in(['Baja', 'Media', 'Alta'])],
@@ -35,24 +45,46 @@ class AlertaController extends Controller
             'ubicacion' => 'nullable|string|max:255',
             'estado' => ['required', Rule::in(['Nueva', 'En Proceso', 'Resuelta'])],
             'tipo' => ['nullable', Rule::in(['hostil', 'no hostil'])],
+            'imagen' => 'nullable|image|mimes:jpeg,jpg,png|max:10240',
         ]);
 
-        $validatedData['enviado'] = false; // predeterminado
+        // Generar ID si no existe
+        $validatedData['id_alerta'] = $validatedData['id_alerta'] ?? 'ALR-' . strtoupper(Str::random(6));
+
+        // Guardar imagen
+        if ($request->hasFile('imagen')) {
+            $file = $request->file('imagen');
+            $filename = 'IMG_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images/alerts'), $filename);
+            $validatedData['imagen'] = 'images/alerts/' . $filename;
+        }
+
+        $validatedData['enviado'] = false;
+
         Alerta::create($validatedData);
 
-        return redirect()->route('alertas.index')->with('success', 'Alerta registrada con éxito.');
+        return redirect()->route('alertas.index')->with('success', '✅ Alerta registrada correctamente.');
     }
 
+    /**
+     * 👁️ Ver alerta individual
+     */
     public function show(Alerta $alerta): View
     {
         return view('guardaparques.alertas.show', compact('alerta'));
     }
 
+    /**
+     * ✏️ Editar alerta existente
+     */
     public function edit(Alerta $alerta): View
     {
         return view('guardaparques.alertas.edit', compact('alerta'));
     }
 
+    /**
+     * 🔄 Actualizar datos de alerta
+     */
     public function update(Request $request, Alerta $alerta): RedirectResponse
     {
         $validatedData = $request->validate([
@@ -68,28 +100,36 @@ class AlertaController extends Controller
 
         $alerta->update($validatedData);
 
-        return redirect()->route('alertas.index')->with('success', 'Alerta actualizada.');
+        return redirect()->route('alertas.index')->with('success', '✅ Alerta actualizada correctamente.');
     }
 
+    /**
+     * 🗑️ Eliminar alerta y su imagen
+     */
     public function destroy(Alerta $alerta): RedirectResponse
     {
+        if ($alerta->imagen && file_exists(public_path($alerta->imagen))) {
+            unlink(public_path($alerta->imagen));
+        }
+
         $alerta->delete();
-        return redirect()->route('alertas.index')->with('success', 'Alerta eliminada.');
+
+        return redirect()->route('alertas.index')->with('success', '🗑️ Alerta eliminada correctamente.');
     }
 
-    /** Método para enviar correo manual de alerta */
+    /**
+     * 📧 Enviar correo con alerta a guardaparques
+     */
     public function send(Alerta $alerta): RedirectResponse
     {
         if (!$alerta->enviado) {
-            // Enviar correo a todos los guardaparques
             $guardaparques = User::where('role', 'guardaparque')->get();
             foreach ($guardaparques as $g) {
                 Mail::to($g->email)->send(new AlertaMail($alerta));
             }
-            $alerta->enviado = true;
-            $alerta->save();
+            $alerta->update(['enviado' => true]);
         }
 
-        return back()->with('success', 'Correo enviado a guardaparques');
+        return back()->with('success', '📩 Alerta enviada a los guardaparques.');
     }
 }
