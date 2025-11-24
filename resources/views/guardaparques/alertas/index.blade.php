@@ -2,6 +2,8 @@
 @section('title', 'Consulta de Alertas IoT - Guardaparques')
 
 @section('content')
+    @php use Illuminate\Support\Str; @endphp
+
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <h1 class="text-3xl font-extrabold text-green-700 mb-8">
@@ -9,7 +11,7 @@
         </h1>
 
         <p class="text-gray-600 mb-6 text-sm">
-            Aquí puedes visualizar las alertas generadas por los sensores IoT.
+            Aquí puedes visualizar las alertas generadas por los sensores IoT o registradas manualmente.
             Solo el administrador puede configurarlas o eliminarlas.
         </p>
 
@@ -75,7 +77,17 @@
                     @forelse($alertas as $alerta)
                         <tr>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $alerta->id_alerta }}</td>
-                            <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ $alerta->titulo }}</td>
+
+                            {{-- ✅ Título con etiqueta IoT si viene de un dispositivo --}}
+                            <td class="px-6 py-4 text-sm font-semibold text-gray-900">
+                                {{ $alerta->titulo }}
+                                @if(Str::contains(strtolower($alerta->sensor_id ?? ''), 'esp32') || Str::contains(strtolower($alerta->sensor_id ?? ''), 'iot'))
+                                    <span
+                                        class="ml-2 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                                        IoT
+                                    </span>
+                                @endif
+                            </td>
 
                             <td class="px-6 py-4 text-sm text-gray-700">
                                 @if($alerta->imagen)
@@ -100,6 +112,7 @@
                                     {{ $alerta->severidad }}
                                 </span>
                             </td>
+
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $alerta->mensaje }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $alerta->sensor_id }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $alerta->ubicacion }}</td>

@@ -9,8 +9,6 @@ class Alerta extends Model
 {
     use HasFactory;
 
-    protected $table = 'alertas';
-
     protected $fillable = [
         'id_alerta',
         'titulo',
@@ -19,8 +17,8 @@ class Alerta extends Model
         'sensor_id',
         'ubicacion',
         'estado',
-        'tipo',      // hostil / pacifico
-        'enviado',   // booleano si se envió correo
-        'imagen',  //detectar si es animal hostil o no
+        'tipo',
+        'imagen',
+        'enviado',
     ];
 }
