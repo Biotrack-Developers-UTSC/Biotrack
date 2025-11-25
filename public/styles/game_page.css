@@ -43,7 +43,7 @@ nav a.active {
     color: var(--accent-color);
 }
 
-/* ===== Botones ===== */
+/* ===== Botones Base ===== */
 .btn {
     display: inline-block;
     padding: 12px 30px;
@@ -60,33 +60,49 @@ nav a.active {
     transform: scale(1.05);
 }
 
-/* ===== Hero Section ===== */
+/* --- ESTILOS ADICIONALES DEL BOTÓN SECUNDARIO (para Hero) --- */
+.btn-secondary {
+    background: transparent;
+    border: 2px solid var(--text-color);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+
+/* ===== Hero Section MEJORADO ===== */
 .hero {
-    background: var(--hero-bg) no-repeat center center/cover;
-    min-height: 500px;
+    /* Combinar imagen y overlay en un solo background para simplicidad */
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)), var(--hero-bg) no-repeat center center/cover;
+    min-height: 550px;
+    /* Aumentado ligeramente */
     display: flex;
     align-items: center;
     color: var(--text-color);
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
     position: relative;
     overflow: hidden;
+    padding: 80px 0;
+    /* Asegurar padding vertical en todos los tamaños */
 }
 
+/* Eliminar el ::after anterior ya que el overlay está en el background */
 .hero::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    content: none;
 }
 
 .hero-content {
     position: relative;
     z-index: 2;
-    max-width: 700px;
-    margin-left: 20px;
+    max-width: 800px;
+    margin-left: 0;
+    /* Lo centraremos con el container */
+    padding: 0 20px;
+    /* Asegura padding en los bordes */
     animation: fadeInUp 1s ease forwards;
     opacity: 0;
     transform: translateY(20px);
@@ -100,7 +116,10 @@ nav a.active {
 }
 
 .hero h1 {
-    font-size: 3rem;
+    font-size: 3.5rem;
+    /* Título más grande y enfocado */
+    color: var(--secondary-color);
+    line-height: 1.1;
     margin-bottom: 15px;
 }
 
@@ -109,25 +128,58 @@ nav a.active {
     margin-bottom: 20px;
 }
 
+.tagline {
+    display: block;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.hero-actions {
+    margin-top: 30px;
+}
+
 /* ===== Secciones de Contenido ===== */
 .features,
 .screenshots,
 .download {
-    padding: 60px 20px;
+    padding: 80px 20px;
+    /* Más padding para una mejor separación */
     background: #f4f4f4;
 }
 
-.section-title {
-    font-size: 2rem;
-    color: #333;
-    text-align: center;
-    margin-bottom: 40px;
+/* --- NUEVOS ESTILOS PARA FONDOS --- */
+.bg-dark {
+    background: var(--dark-background);
+    color: var(--text-color);
 }
 
-/* ===== Features Grid ===== */
+.bg-light {
+    background: #f4f4f4;
+    color: #333;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    /* Título de sección más grande */
+    color: #333;
+    text-align: center;
+    margin-bottom: 50px;
+    font-weight: 800;
+}
+
+.bg-dark .section-title {
+    color: var(--text-color);
+}
+
+
+/* ===== Features Grid y Cards ===== */
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* Min-width un poco más grande */
     gap: 30px;
 }
 
@@ -151,6 +203,22 @@ nav a.active {
     margin-bottom: 15px;
 }
 
+/* --- NUEVOS ESTILOS PARA CARDS OSCURAS --- */
+.feature-card.dark {
+    background: var(--dark-background);
+    color: var(--text-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-card.dark:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.feature-card.dark .feature-icon i {
+    color: var(--secondary-color);
+}
+
 /* ===== Screenshots ===== */
 .screenshots-grid {
     display: grid;
@@ -158,9 +226,16 @@ nav a.active {
     gap: 20px;
 }
 
+.screenshot {
+    overflow: hidden;
+}
+
 .screenshot img {
     width: 100%;
     border-radius: 10px;
+    border: 3px solid var(--dark-background);
+    /* Borde para contrastar */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -170,25 +245,56 @@ nav a.active {
 }
 
 /* ===== Requisitos y Plataformas ===== */
-.system-requirements h3,
-.platforms h3 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-top: 30px;
-    margin-bottom: 15px;
-}
-
-.requirements-grid,
-.platforms-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
+.requirements-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .requirement ul {
     text-align: left;
     padding-left: 20px;
 }
+
+/* ===== Game Frame (Específico del Blade) ===== */
+.game-frame-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.game-frame {
+    width: 90%;
+    max-width: 900px;
+    height: 600px;
+    border: 5px solid var(--secondary-color);
+    border-radius: 12px;
+    background-color: var(--dark-background);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.game-frame:hover {
+    transform: translateY(-5px);
+}
+
+.download-btn {
+    display: inline-block;
+    background-color: var(--secondary-color);
+    color: var(--dark-background);
+    font-weight: bold;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin: 10px 15px;
+    /* Ajuste para descarga múltiples */
+}
+
+.download-btn:hover {
+    background-color: #ffea75;
+    transform: scale(1.05);
+}
+
 
 /* ===== Footer ===== */
 footer {
@@ -204,24 +310,29 @@ footer {
     margin-top: 20px;
 }
 
-/* ===== Responsive ===== */
+/* ===== Responsive Mejorado ===== */
 @media (max-width: 900px) {
     .hero h1 {
-        font-size: 2.2rem;
+        font-size: 2.8rem;
     }
 
     .hero p {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
     .features-grid,
     .screenshots-grid {
-        gap: 15px;
+        gap: 20px;
     }
 }
 
 /* --- 📱 MEDIA QUERIES para Tablets y Móviles (Juego) --- */
 @media (max-width: 768px) {
+    .hero {
+        text-align: center;
+        padding: 60px 20px;
+        min-height: 450px;
+    }
 
     header .header-content {
         flex-direction: column;
@@ -229,13 +340,12 @@ footer {
         gap: 10px;
     }
 
-    .hero {
+    .hero-content {
         text-align: center;
-        padding: 100px 20px;
     }
 
     .hero h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
 
     .hero p {
@@ -247,6 +357,28 @@ footer {
     .requirements-grid,
     .platforms-grid {
         grid-template-columns: 1fr;
+    }
+
+    .download-btn {
+        margin: 10px auto;
+        display: block;
+        /* Cada botón en su propia línea */
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-actions .btn {
+        margin: 5px 0;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .game-frame {
+        height: 400px;
     }
 
     footer {
