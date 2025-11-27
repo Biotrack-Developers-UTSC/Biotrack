@@ -35,6 +35,7 @@ RUN php -d memory_limit=-1 /usr/bin/composer install --no-dev --optimize-autoloa
 # Establecer permisos para el usuario www-data, esencial para el volumen /storage
 RUN chown -R www-data:www-data /var/www
 
-ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
+ENTRYPOINT [ "/var/www/entrypoint.sh" ]
+EXPOSE 8000
 
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
