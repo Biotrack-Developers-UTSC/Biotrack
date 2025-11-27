@@ -36,6 +36,6 @@ RUN php -d memory_limit=-1 /usr/bin/composer install --no-dev --optimize-autoloa
 RUN chown -R www-data:www-data /var/www
 
 ENTRYPOINT [ "/var/www/entrypoint.sh" ]
-EXPOSE 8000
+EXPOSE ${PORT}
 
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
