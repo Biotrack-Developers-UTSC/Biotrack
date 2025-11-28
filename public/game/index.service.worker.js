@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1764106981|869976379';
+const CACHE_VERSION = '1764293439|36499161';
 /** @type {string} */
 const CACHE_PREFIX = 'UTSC Soccer lege-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
